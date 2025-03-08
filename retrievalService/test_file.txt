@@ -1,0 +1,2 @@
+This is from my local machine - i am attempting to upload this to an s3 bucket
+If you are reading this from aws, then yipee i succeeded!
