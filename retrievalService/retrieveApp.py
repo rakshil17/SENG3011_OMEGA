@@ -1,7 +1,6 @@
 import boto3
 # won't be found in the repository because it is part of the gitignore file
 # from secrets import AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_S3_BUCKET_NAME, AWS_REGION
-from secrets import  AWS_S3_BUCKET_NAME
 import sys
 
 
@@ -14,8 +13,16 @@ class BotoPullFile:
             object_content = response['Body'].read().decode('utf-8')
             return object_content
 
+
+        except s3_client.exceptions.NoSuchKey as e:
+            sys.stderr.write(f"(BotoPullFile.pull) No Such Key {fileNameOnS3}: {e}\n")
+            raise
+        except s3_client.exceptions.NoSuchBucket as e:
+            sys.stderr.write(f"(BotoPullFile.pull) No Such Bucket {bucketName}: {e}\n")
+            raise
         except Exception as e:
-            sys.stderr.write(f"{e} (on line 27)\n")
+            sys.stderr.write(f"(BotoPullFile.pull) General Exception: {e}\n")
+            raise
 
 
 if __name__ == '__main__':
