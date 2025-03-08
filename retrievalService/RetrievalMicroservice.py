@@ -5,7 +5,7 @@
 # /update
 
 from flask import Flask, request
-from BotoPullFile import BotoPullFile
+from RetrievalInterface import RetrievalInterface
 from secrets import AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_S3_BUCKET_NAME, AWS_REGION
 
 app = Flask(__name__)
@@ -13,7 +13,7 @@ app = Flask(__name__)
 @app.route('/v1/retrieve', methods=['GET'])
 def retrieve():
     filename = request.form.get('filename')
-    puller = BotoPullFile()
+    puller = RetrievalInterface()
     return puller.pull(AWS_S3_BUCKET_NAME, filename)
 
 @app.route('/v1/delete', methods=['DELETE'])
