@@ -8,7 +8,7 @@ from RetrievalInterface import RetrievalInterface
 # moto uses depreacted datetime.datetime.utcnow which causes a Deprecation Warning
 # Therefore, I am choosing to hide this warning
 @pytest.mark.filterwarnings(r"ignore:datetime.datetime.utcnow\(\) is deprecated:DeprecationWarning")
-class TestS3Operations:
+class TestPullFromS3:
     @mock_aws
     # successfully pull a file
     def test_pull_file(self):
