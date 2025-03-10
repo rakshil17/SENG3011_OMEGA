@@ -27,12 +27,13 @@ class RetrievalInterface:
     def deleteOne(self, bucketName: str, fileNameOnS3: str) -> bool:
         s3_client = boto3.client("s3")
         try:
-            response = s3_client.delete_object(Bucket=bucket_name, Key=file_name)
+            s3_client.delete_object(Bucket=bucketName, Key=fileNameOnS3)
+            return True
         except Exception as e:
             raise
 
 if __name__ == '__main__':
-    interface = BotoPushAndPull()
+    interface = RetrievalInterface()
     LOCAL_FILE = 'test_file.txt'
     NAME_FOR_S3 = 'test_file.txt'
     bucket_name = 'seng3011-omega-25t1-testing-bucket'
