@@ -2,7 +2,7 @@
 # /retrieve
 # /list_files
 # /delete
-# /update
+# /update           # more clarifaction would be good
 
 from flask import Flask, request
 from RetrievalInterface import RetrievalInterface
