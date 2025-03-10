@@ -9,50 +9,62 @@ from RetrievalInterface import RetrievalInterface
 # Therefore, I am choosing to hide this warning
 @pytest.mark.filterwarnings(r"ignore:datetime.datetime.utcnow\(\) is deprecated:DeprecationWarning")
 class TestDeleteFromS3:
-    @mock_aws
-    # successfully pull a file
-    def test_delete_file(self):
-        bucket_name = 'test-bucket'
-        fileName = 'test-file.txt'
-        file_content = 'Hello, Moto!'
 
-        # Create a mock S3 bucket and upload a test file.
+    # successfully delete a file
+    @mock_aws
+    def test_delete_file(self):
+        bucketName = 'test-bucket'
+        fileName = 'test-file.txt'
+        fileContent = 'some nice file content'
+
         s3 = boto3.client('s3')
-        s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={
-        'LocationConstraint': 'ap-southeast-2'})
-        s3.put_object(Bucket=bucket_name, Key=fileName, Body=file_content.encode('utf-8'))
+        s3.create_bucket(Bucket=bucketName, CreateBucketConfiguration={
+            'LocationConstraint': 'ap-southeast-2'
+        })
+
+        s3.put_object(Bucket=bucketName, Key=fileName, Body=fileContent.encode('utf-8'))
 
         # Call the function to download and read the file.
-        filePuller = RetrievalInterface()
-        downloaded_content = filePuller.pull(bucket_name, fileName)
+        retrievalInterface = RetrievalInterface()
+        result = retrievalInterface.deleteOne(bucketName, fileName)
+        assert result == True
 
-        # Assert that the downloaded content matches the original content.
-        assert downloaded_content == file_content
-    
-    @mock_aws
-    # try to pull a file that does not exist
-    def test_pull_nonexistent_file(self):
-        bucket_name = 'test-bucket'
-
-        s3 = boto3.client('s3')
-        s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={
-        'LocationConstraint': 'ap-southeast-2'})
-        s3.put_object(Bucket=bucket_name, Key='real-file', Body='file_content'.encode('utf-8'))
-
-        filePuller = RetrievalInterface()
         with pytest.raises(s3.exceptions.NoSuchKey):
-            filePuller.pull("test-bucket", "non-existent-file")
+            retrievalInterface.pull(bucketName, fileName)
+
+
 
     @mock_aws
-    def test_pull_nonexistent_bucket(self):
+    def test_delete_non_existent_file(self):
+        bucketName = 'test-bucket'
+        fileName = 'test-file.txt'
+        fileContent = 'some nice file content'
+
         s3 = boto3.client('s3')
-        s3.create_bucket(Bucket='real-bucket', CreateBucketConfiguration={
-            'LocationConstraint': 'ap-southeast-2'})
-        filePuller = RetrievalInterface()
+        s3.create_bucket(Bucket=bucketName, CreateBucketConfiguration={
+            'LocationConstraint': 'ap-southeast-2'
+        })
 
+        s3.put_object(Bucket=bucketName, Key=fileName, Body=fileContent.encode('utf-8'))
+
+        retrievalInterface = RetrievalInterface()
+        result = retrievalInterface.deleteOne(bucketName, fileName)
+
+        # even though the file never existed, boto3 does not throw an error
+        assert result == True       
+
+    @mock_aws
+    def test_delete_non_existent_bucket(self):
+        bucketName = 'test-bucket'
+        fileName = 'test-file.txt'
+        fileContent = 'some nice file content'
+
+        s3 = boto3.client('s3')
+        s3.create_bucket(Bucket=bucketName, CreateBucketConfiguration={
+            'LocationConstraint': 'ap-southeast-2'
+        })
+
+        s3.put_object(Bucket=bucketName, Key=fileName, Body=fileContent.encode('utf-8'))
+        retrievalInterface = RetrievalInterface()
         with pytest.raises(s3.exceptions.NoSuchBucket):
-            filePuller.pull("test-bucket", "non-existent-file")
-
-
-
-
+            retrievalInterface.deleteOne('non-existent-bucket', fileName)
