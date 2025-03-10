@@ -1,3 +1,4 @@
 boto3
-'moto[ec2,s3,all]'
+moto[ec2,s3,all]
 pytest
+coverage
