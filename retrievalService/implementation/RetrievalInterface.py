@@ -38,8 +38,6 @@ class RetrievalInterface:
             
             retrievedFiles = userInfo.get('retrievedFiles')
             
-            
-            
             for i, retrievedFile in enumerate(retrievedFiles):
                 if retrievedFile.get('filename') == fileName:
                     return (True, retrievedFile, i)
