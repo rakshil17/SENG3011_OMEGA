@@ -103,6 +103,7 @@ class RetrievalInterface:
                 UpdateExpression=f"REMOVE {"retrievedFiles"}[{fileIndex}]",
                 ReturnValues="UPDATED_NEW"
             )
+            return True
         except Exception as e:
             print(f"Error deleting element: {e}")
 
