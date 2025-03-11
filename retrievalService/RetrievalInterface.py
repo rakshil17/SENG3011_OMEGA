@@ -25,19 +25,20 @@ class RetrievalInterface:
             sys.stderr.write(f"(RetrievalInterface.pull) General Exception: {e}\n")
             raise
     
-    def findFileInDynamo(self, fileName: str, username: str, tableName: str):
+    def getFileFromDynamo(self, fileName: str, username: str, tableName: str):
         dynamodb = boto3.resource('dynamodb')
         try:
             table = dynamodb.Table(tableName)
 
             response = table.get_item(Key={"username": username})
             retrievedFiles = response.get('Item').get('retrievedFiles')
-
-            for retrievedFile in retrievedFiles:
+            for i, retrievedFile in enumerate(retrievedFiles):
                 if retrievedFile.get('filename') == fileName:
-                    return True
-            return False
-
+                    return (True, retrievedFile, i)
+            return (False, None, -1)
+        except Exception as e:
+            sys.stderr.write(f"(RetrievalInterface.getFileInDynamo) General Exception: {e}\n")
+            raise
 
     # Pushes a file and its content to dynamoDB
     # Does NOT check if the file already exists in the user's allocated memory
@@ -50,6 +51,10 @@ class RetrievalInterface:
             'filename': fileName
         }
         try:
+            found, file, index = self.getFileFromDynamo(fileName, username, tableName)
+            if found:
+                raise Exception("You already have a file with this name; refusing to push it again")
+
             response = table.update_item(
                 Key={
                     "username": username
@@ -64,7 +69,7 @@ class RetrievalInterface:
 
         except Exception as e:
             sys.stderr.write(f"(RetrievalInterface.pushToDynamo) General Exception {e}\n")
-
+            raise
 
     def deleteOne(self, bucketName: str, fileNameOnS3: str) -> bool:
         s3_client = boto3.client("s3")
@@ -74,12 +79,31 @@ class RetrievalInterface:
         except Exception as e:
             raise
 
+    def deleteFromDynamo(self, fileName: str, username: str, tableName):
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table(tableName)
+        
+        found, file, fileIndex = self.getFileFromDynamo(fileName, username, tableName)
+        if not found:
+            raise FileNotFoundError("Attempting to delete a file that you have never retrieved")
+
+        try:
+            response = table.update_item(
+                Key={
+                    "username": username
+                },
+                UpdateExpression=f"REMOVE {"retrievedFiles"}[{fileIndex}]",
+                ReturnValues="UPDATED_NEW"
+            )
+            print(f"Element at index {fileIndex} deleted successfully:", response)
+
+        except Exception as e:
+            print(f"Error deleting element: {e}")
+
 if __name__ == '__main__':
     interface = RetrievalInterface()
 
     TABLE_NAME = "seng3011-test-dynamodb"
 
-    # interface.pushToDynamo("boto_file", "boto_file_content", "user1", TABLE_NAME)
-    result = interface.findFileInDynamo("boto_file", "user1", TABLE_NAME)
-
-    print(result)
+    # interface.pushToDynamo("boto_file2", "boto_file_content", "user1", TABLE_NAME)
+    interface.deleteFromDynamo("fake_file", "user1", TABLE_NAME)
