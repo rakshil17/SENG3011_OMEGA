@@ -3,6 +3,8 @@ import boto3
 # from secrets import AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_S3_BUCKET_NAME, AWS_REGION
 import sys
 
+# https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/programming-with-python.html for dynamoDB
+
 
 class RetrievalInterface:
     def pull(self, bucketName: str, fileNameOnS3: str) -> str:
@@ -23,6 +25,36 @@ class RetrievalInterface:
         except Exception as e:
             sys.stderr.write(f"(RetrievalInterface.pull) General Exception: {e}\n")
             raise
+    
+            
+
+    # Pushes a file and its content to dynamoDB
+    # Does NOT check if the file already exists in the user's allocated memory
+    def pushToDynamo(self, fileName: str, fileContent: str, username: str, tableName: str):
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table(tableName)
+
+        new_object = {
+            'content': fileContent,
+            'fileName': fileName
+        }
+        try:
+            response = table.update_item(
+                Key={
+                    "username": username
+                },
+                UpdateExpression=f"SET {"retrievedFiles"} = list_append(if_not_exists({"retrievedFiles"}, :empty_list), :new_object)",
+                ExpressionAttributeValues={
+                    ':new_object': [new_object],  # Wrap the new object in a list for list_append
+                    ':empty_list': []
+                },
+                ReturnValues="UPDATED_NEW"
+            )
+
+            print(response)
+        except Exception as e:
+            sys.stderr.write(f"(RetrievalInterface.pushToDynamo) General Exception {e}\n")
+
 
     def deleteOne(self, bucketName: str, fileNameOnS3: str) -> bool:
         s3_client = boto3.client("s3")
@@ -34,9 +66,7 @@ class RetrievalInterface:
 
 if __name__ == '__main__':
     interface = RetrievalInterface()
-    LOCAL_FILE = 'test_file.txt'
-    NAME_FOR_S3 = 'test_file.txt'
-    bucket_name = 'seng3011-omega-25t1-testing-bucket'
 
-    message = interface.pull(bucket_name, NAME_FOR_S3)
-    print(message)
+    TABLE_NAME = "seng3011-test-dynamodb"
+
+    interface.pushToDynamo("boto_file", "boto_file_content", "user1", TABLE_NAME)
