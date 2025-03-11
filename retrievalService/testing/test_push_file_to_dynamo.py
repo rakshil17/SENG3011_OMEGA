@@ -38,7 +38,8 @@ class TestPushToDynamo:
         with pytest.raises(ClientError) as errorInfo:
             retrievalInterface.pushToDynamo(fileName, fileContent, username, 'fakeTableName')
         assert errorInfo.value.response["Error"]["Code"] == "ResourceNotFoundException"
-
+    
+    @mock_aws
     def test_user_does_not_exist(self, test_table):
         fileName = 'test-file.txt'
         fileContent = 'some nice file content'
@@ -48,9 +49,3 @@ class TestPushToDynamo:
         # with pytest.raises(botocore.errorfactory.ResourceNotFoundException):
         with pytest.raises(Exception) as errorInfo:
             retrievalInterface.pushToDynamo(fileName, fileContent, 'fake-user', tableName)
-
-
-
-
-
-
