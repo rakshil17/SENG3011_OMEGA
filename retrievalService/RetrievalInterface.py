@@ -2,7 +2,6 @@ import boto3
 # won't be found in the repository because it is part of the gitignore file
 # from secrets import AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_S3_BUCKET_NAME, AWS_REGION
 import sys
-
 # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/programming-with-python.html for dynamoDB
 
 
@@ -26,7 +25,19 @@ class RetrievalInterface:
             sys.stderr.write(f"(RetrievalInterface.pull) General Exception: {e}\n")
             raise
     
-            
+    def findFileInDynamo(self, fileName: str, username: str, tableName: str):
+        dynamodb = boto3.resource('dynamodb')
+        try:
+            table = dynamodb.Table(tableName)
+
+            response = table.get_item(Key={"username": username})
+            retrievedFiles = response.get('Item').get('retrievedFiles')
+
+            for retrievedFile in retrievedFiles:
+                if retrievedFile.get('filename') == fileName:
+                    return True
+            return False
+
 
     # Pushes a file and its content to dynamoDB
     # Does NOT check if the file already exists in the user's allocated memory
@@ -36,7 +47,7 @@ class RetrievalInterface:
 
         new_object = {
             'content': fileContent,
-            'fileName': fileName
+            'filename': fileName
         }
         try:
             response = table.update_item(
@@ -51,7 +62,6 @@ class RetrievalInterface:
                 ReturnValues="UPDATED_NEW"
             )
 
-            print(response)
         except Exception as e:
             sys.stderr.write(f"(RetrievalInterface.pushToDynamo) General Exception {e}\n")
 
@@ -69,4 +79,7 @@ if __name__ == '__main__':
 
     TABLE_NAME = "seng3011-test-dynamodb"
 
-    interface.pushToDynamo("boto_file", "boto_file_content", "user1", TABLE_NAME)
+    # interface.pushToDynamo("boto_file", "boto_file_content", "user1", TABLE_NAME)
+    result = interface.findFileInDynamo("boto_file", "user1", TABLE_NAME)
+
+    print(result)
