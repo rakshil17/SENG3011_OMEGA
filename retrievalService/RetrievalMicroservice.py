@@ -13,9 +13,8 @@ app = Flask(__name__)
 AWS_S3_BUCKET_NAME = "seng3011-omega-25t1-testing-bucket"
 # filename = "test_file.txt"
 
-@app.route('/v1/retrieve', methods=['GET'])
-def retrieve():
-    filename = request.get_json()['filename']
+@app.route('/v1/retrieve/<filename>', methods=['GET'])
+def retrieve(filename: str):
     retrievalInterface = RetrievalInterface()
     try:
         return retrievalInterface.pull(AWS_S3_BUCKET_NAME, filename)
