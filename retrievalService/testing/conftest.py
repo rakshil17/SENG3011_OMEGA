@@ -9,20 +9,19 @@ def dynamodb_mock():
         dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
         yield dynamodb
 
+# database with one user
 @pytest.fixture(scope="function")
 def test_table(dynamodb_mock):
     """Creates a test DynamoDB table before each test."""
 
-    fileName = 'test-file.txt'
-    fileContent = 'some nice file content'
     username = 'user1'
 
     with mock_aws():
         dynamodb = boto3.resource('dynamodb')
-        table_name = 'test-table'
+        tableName = 'test-table'
 
         table = dynamodb.create_table(
-            TableName=table_name,
+            TableName=tableName,
             KeySchema=[
                 {'AttributeName': 'username', 'KeyType': 'HASH'}
             ],
@@ -38,6 +37,48 @@ def test_table(dynamodb_mock):
         }
 
         table.put_item(Item=item)
+
+        yield table
+        # clean up
+        table.delete()
+
+
+# database with two users
+@pytest.fixture(scope="function")
+def test_table_two_users(dynamodb_mock):
+    """Creates a test DynamoDB table before each test."""
+
+    username = 'user1'
+    username2 = 'user2'
+
+    with mock_aws():
+        dynamodb = boto3.resource('dynamodb')
+        tableName = 'test-table'
+
+        table = dynamodb.create_table(
+            TableName=tableName,
+            KeySchema=[
+                {'AttributeName': 'username', 'KeyType': 'HASH'}
+            ],
+            AttributeDefinitions=[
+                {'AttributeName': 'username', 'AttributeType': 'S'},
+            ],
+            ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5},
+        )
+        item = {
+            'username': username, 
+            'analysis': [],
+            'retrievedFiles': []
+        }
+
+        item2 = {
+            'username': username2, 
+            'analysis': [],
+            'retrievedFiles': []
+        }
+
+        table.put_item(Item=item)
+        table.put_item(Item=item2)
 
         yield table
         # clean up
