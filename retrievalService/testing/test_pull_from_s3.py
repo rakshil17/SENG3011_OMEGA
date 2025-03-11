@@ -3,7 +3,7 @@
 import pytest
 from moto import mock_aws
 import boto3
-from RetrievalInterface import RetrievalInterface
+from ..implementation.RetrievalInterface import RetrievalInterface
 
 # moto uses depreacted datetime.datetime.utcnow which causes a Deprecation Warning
 # Therefore, I am choosing to hide this warning
