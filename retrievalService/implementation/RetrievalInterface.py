@@ -31,7 +31,15 @@ class RetrievalInterface:
             table = dynamodb.Table(tableName)
 
             response = table.get_item(Key={"username": username})
-            retrievedFiles = response.get('Item').get('retrievedFiles')
+            userInfo = response.get('Item')
+
+            if not userInfo:
+                raise Exception("Username not found - ensure you have registered")
+            
+            retrievedFiles = userInfo.get('retrievedFiles')
+            
+            
+            
             for i, retrievedFile in enumerate(retrievedFiles):
                 if retrievedFile.get('filename') == fileName:
                     return (True, retrievedFile, i)
@@ -67,6 +75,8 @@ class RetrievalInterface:
                 ReturnValues="UPDATED_NEW"
             )
 
+            return True
+
         except Exception as e:
             sys.stderr.write(f"(RetrievalInterface.pushToDynamo) General Exception {e}\n")
             raise
@@ -95,8 +105,6 @@ class RetrievalInterface:
                 UpdateExpression=f"REMOVE {"retrievedFiles"}[{fileIndex}]",
                 ReturnValues="UPDATED_NEW"
             )
-            print(f"Element at index {fileIndex} deleted successfully:", response)
-
         except Exception as e:
             print(f"Error deleting element: {e}")
 
