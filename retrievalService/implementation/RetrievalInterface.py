@@ -7,6 +7,10 @@ import sys
 
 class RetrievalInterface:
     def pull(self, bucketName: str, fileNameOnS3: str) -> str:
+        '''Pulls a specified file from the specified s3 bucket. 
+        Will return the content of that file as a string.
+        This method should be called by a IAM user who has access
+        to at least read from the s3 bucket.'''
         s3_client = boto3.client(service_name = 's3')
 
         try:
