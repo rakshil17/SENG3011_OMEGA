@@ -72,9 +72,25 @@ class TestDeleteFromDynamo:
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
 
-        with pytest.raises(FileNotFoundError) as errorInfo:
+        with pytest.raises(FileNotFoundError):
             retrievalInterface.deleteFromDynamo(fileName, username2, tableName)
 
 
+    @mock_aws
+    def test_invalid_double_delete(self, test_table):
+        fileName = 'test-file.txt'
+        username = 'user1'
+        tableName = 'test-table'
+        fileContent = 'niceFileContent'
+
+        retrievalInterface = RetrievalInterface()
+        retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
+
+        response = retrievalInterface.deleteFromDynamo(fileName, username, tableName)
+        assert response == True
+        
+        with pytest.raises(FileNotFoundError):
+            retrievalInterface.deleteFromDynamo(fileName, username, tableName)
+            
 
 
