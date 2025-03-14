@@ -2,6 +2,7 @@ import boto3
 # won't be found in the repository because it is part of the gitignore file
 # from secrets import AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_S3_BUCKET_NAME, AWS_REGION
 import sys
+from botocore.exceptions import ClientError
 # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/programming-with-python.html for dynamoDB
 
 
@@ -19,17 +20,19 @@ class RetrievalInterface:
             return object_content
 
 
-        except s3_client.exceptions.NoSuchKey as e:
-            sys.stderr.write(f"(RetrievalInterface.pull) No Such Key {fileNameOnS3}: {e}\n")
-            raise
-        except s3_client.exceptions.NoSuchBucket as e:
-            sys.stderr.write(f"(RetrievalInterface.pull) No Such Bucket {bucketName}: {e}\n")
-            raise
-        except Exception as e:
-            sys.stderr.write(f"(RetrievalInterface.pull) General Exception: {e}\n")
+        except ClientError as e:
+            sys.stderr.write(f'''(Retrieval Interface.deleteFromDynamo) Client (DynamoDB) Error: {e.response['Error']['Code']}\n''')
             raise
     
     def getFileFromDynamo(self, fileName: str, username: str, tableName: str):
+        '''Looks for a user's file in the DynamoDB structure. Returns a tuple of
+        size three of the form (bool, str|None, int). If the bool value is true, 
+        this indicates that the desired fileName was found under the particular 
+        user's object. In this case, the second element will be the file's content
+        and the thrid will be the index at which the file appears in the list of 
+        user's retrieved files. If the file is not found, then the boolean value 
+        will be false, the second value will be None and the integer will be -1.'''
+
         dynamodb = boto3.resource('dynamodb')
         try:
             table = dynamodb.Table(tableName)
@@ -46,8 +49,8 @@ class RetrievalInterface:
                 if retrievedFile.get('filename') == fileName:
                     return (True, retrievedFile, i)
             return (False, None, -1)
-        except Exception as e:
-            sys.stderr.write(f"(RetrievalInterface.getFileInDynamo) General Exception: {e}\n")
+        except ClientError as e:
+            sys.stderr.write(f'''(Retrieval Interface.deleteFromDynamo) Client (DynamoDB) Error: {e.response['Error']['Code']}\n''')
             raise
 
     # Pushes a file and its content to dynamoDB
@@ -63,7 +66,7 @@ class RetrievalInterface:
         try:
             found, file, index = self.getFileFromDynamo(fileName, username, tableName)
             if found:
-                raise Exception("You already have a file with this name; refusing to push it again")
+                raise Exception("User already have a file with this name; refusing to push it again")
 
             response = table.update_item(
                 Key={
@@ -78,7 +81,9 @@ class RetrievalInterface:
             )
 
             return True
-
+        except ClientError as e:
+            sys.stderr.write(f'''(Retrieval Interface.deleteFromDynamo) Client (DynamoDB) Error: {e.response['Error']['Code']}\n''')
+            raise
         except Exception as e:
             sys.stderr.write(f"(RetrievalInterface.pushToDynamo) General Exception {e}\n")
             raise
@@ -108,13 +113,8 @@ class RetrievalInterface:
                 ReturnValues="UPDATED_NEW"
             )
             return True
+        except ClientError as e:
+            sys.stderr.write(f'''(Retrieval Interface.deleteFromDynamo) Client (DynamoDB) Error: {e.response['Error']['Code']}\n''')
+            raise
         except Exception as e:
-            print(f"Error deleting element: {e}")
-
-if __name__ == '__main__':
-    interface = RetrievalInterface()
-
-    TABLE_NAME = "seng3011-test-dynamodb"
-
-    # interface.pushToDynamo("boto_file2", "boto_file_content", "user1", TABLE_NAME)
-    interface.deleteFromDynamo("fake_file", "user1", TABLE_NAME)
+            raise
