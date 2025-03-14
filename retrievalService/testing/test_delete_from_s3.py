@@ -69,3 +69,22 @@ class TestDeleteFromS3:
         retrievalInterface = RetrievalInterface()
         with pytest.raises(s3.exceptions.NoSuchBucket):
             retrievalInterface.deleteOne('non-existent-bucket', fileName)
+
+    @mock_aws
+    def test_double_delete(self):
+        bucketName = 'test-bucket'
+        fileName = 'test-file.txt'
+        fileContent = 'some nice file content'
+
+        s3 = boto3.client('s3')
+        s3.create_bucket(Bucket=bucketName, CreateBucketConfiguration={
+            'LocationConstraint': 'ap-southeast-2'
+        })
+
+        s3.put_object(Bucket=bucketName, Key=fileName, Body=fileContent.encode('utf-8'))
+        retrievalInterface = RetrievalInterface()
+
+        retrievalInterface.deleteOne(bucketName, fileName)
+        
+        with pytest.raises(Exception):
+            retrievalInterface.deleteOne('non-existent-bucket', fileName)
