@@ -114,7 +114,7 @@ class RetrievalInterface:
                 Key={
                     "username": username
                 },
-                UpdateExpression=f"REMOVE {"retrievedFiles"}[{fileIndex}]",
+                UpdateExpression=f"REMOVE retrievedFiles [{fileIndex}]",
                 ReturnValues="UPDATED_NEW"
             )
             return True
