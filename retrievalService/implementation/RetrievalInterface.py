@@ -73,10 +73,12 @@ class RetrievalInterface:
                 Key={
                     "username": username
                 },
-                UpdateExpression=f'''SET {"retrievedFiles"} =
-                    list_append(if_not_exists({"retrievedFiles"}, :empty_list), :new_object)''',
+                # note that retrievedFiles is the attribute in each user
+                UpdateExpression=f'''SET "retrievedFiles" =
+                    list_append(if_not_exists("retrievedFiles", :empty_list), :new_object)''',
+
                 ExpressionAttributeValues={
-                    ':new_object': [new_object],  # Wrap the new object in a list for list_append
+                    ':new_object': [new_object],
                     ':empty_list': []
                 },
                 ReturnValues="UPDATED_NEW"
