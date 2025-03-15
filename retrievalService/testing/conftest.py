@@ -7,7 +7,7 @@ from moto import mock_aws
 def dynamodb_mock():
     """Sets up a mock DynamoDB table before each test using mock_aws."""
     with mock_aws():
-        dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
+        dynamodb = boto3.resource("dynamodb", region_name="ap-southeast-2")
         yield dynamodb
 
 
