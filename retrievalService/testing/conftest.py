@@ -7,7 +7,8 @@ from moto import mock_aws
 def dynamodb_mock():
     """Sets up a mock DynamoDB table before each test using mock_aws."""
     with mock_aws():
-        dynamodb = boto3.resource("dynamodb", region_name="ap-southeast-2")
+        session = boto3.Session(region_name='ap-southeast-1')
+        dynamodb = session.resource("dynamodb")
         yield dynamodb
 
 
@@ -18,10 +19,9 @@ def test_table(dynamodb_mock):
     username = 'user1'
 
     with mock_aws():
-        dynamodb = boto3.resource('dynamodb')
         tableName = 'test-table'
 
-        table = dynamodb.create_table(
+        table = dynamodb_mock.create_table(
             TableName=tableName,
             KeySchema=[
                 {'AttributeName': 'username', 'KeyType': 'HASH'}
@@ -53,10 +53,9 @@ def test_table_two_users(dynamodb_mock):
     username2 = 'user2'
 
     with mock_aws():
-        dynamodb = boto3.resource('dynamodb')
         tableName = 'test-table'
 
-        table = dynamodb.create_table(
+        table = dynamodb_mock.create_table(
             TableName=tableName,
             KeySchema=[
                 {'AttributeName': 'username', 'KeyType': 'HASH'}

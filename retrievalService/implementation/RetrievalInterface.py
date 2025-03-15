@@ -33,7 +33,8 @@ class RetrievalInterface:
         user's retrieved files. If the file is not found, then the boolean value
         will be false, the second value will be None and the integer will be -1.'''
 
-        dynamodb = boto3.resource('dynamodb', region_name='ap-southeast-2')
+        session = boto3.Session(region_name='ap-southeast-1')
+        dynamodb = session.resource('dynamodb')
         try:
             table = dynamodb.Table(tableName)
 
@@ -57,7 +58,8 @@ class RetrievalInterface:
     # Pushes a file and its content to dynamoDB
     # Does NOT check if the file already exists in the user's allocated memory
     def pushToDynamo(self, fileName: str, fileContent: str, username: str, tableName: str):
-        dynamodb = boto3.resource('dynamodb', region_name='ap-southeast-2')
+        session = boto3.Session(region_name='ap-southeast-1')
+        dynamodb = session.resource('dynamodb')
         table = dynamodb.Table(tableName)
 
         new_object = {
@@ -100,7 +102,8 @@ class RetrievalInterface:
             raise
 
     def deleteFromDynamo(self, fileName: str, username: str, tableName):
-        dynamodb = boto3.resource('dynamodb', region_name='ap-southeast-2')
+        session = boto3.Session(region_name='ap-southeast-1')
+        dynamodb = session.resource('dynamodb')
         table = dynamodb.Table(tableName)
 
         found, file, fileIndex = self.getFileFromDynamo(fileName, username, tableName)
