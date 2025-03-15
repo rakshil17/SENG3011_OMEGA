@@ -2,6 +2,7 @@ import pytest
 import boto3
 from moto import mock_aws
 
+
 @pytest.fixture(scope="function")
 def dynamodb_mock():
     """Sets up a mock DynamoDB table before each test using mock_aws."""
@@ -9,7 +10,7 @@ def dynamodb_mock():
         dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
         yield dynamodb
 
-# database with one user
+
 @pytest.fixture(scope="function")
 def test_table(dynamodb_mock):
     """Creates a test DynamoDB table before each test."""
@@ -31,7 +32,7 @@ def test_table(dynamodb_mock):
             ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5},
         )
         item = {
-            'username': username, 
+            'username': username,
             'analysis': [],
             'retrievedFiles': []
         }
@@ -66,13 +67,13 @@ def test_table_two_users(dynamodb_mock):
             ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5},
         )
         item = {
-            'username': username, 
+            'username': username,
             'analysis': [],
             'retrievedFiles': []
         }
 
         item2 = {
-            'username': username2, 
+            'username': username2,
             'analysis': [],
             'retrievedFiles': []
         }

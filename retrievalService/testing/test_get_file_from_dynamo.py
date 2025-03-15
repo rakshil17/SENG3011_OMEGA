@@ -1,8 +1,8 @@
 import pytest
 from moto import mock_aws
-import boto3
 
 from ..implementation.RetrievalInterface import RetrievalInterface
+
 
 @pytest.mark.filterwarnings(r"ignore:datetime.datetime.utcnow\(\) is deprecated:DeprecationWarning")
 class TestGetFileFromDynamo:
@@ -15,7 +15,7 @@ class TestGetFileFromDynamo:
 
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
-        
+
         found, retrievedFile, index = retrievalInterface.getFileFromDynamo(fileName, username, tableName)
 
         assert retrievedFile.get('content') == fileContent
@@ -31,7 +31,7 @@ class TestGetFileFromDynamo:
 
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
-        
+
         found, retrievedFile, index = retrievalInterface.getFileFromDynamo(fileName, username2, tableName)
         assert not found
 
@@ -44,11 +44,10 @@ class TestGetFileFromDynamo:
 
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
-        
 
         found, retrievedFile, index = retrievalInterface.getFileFromDynamo('wrongFileName', username, tableName)
         assert not found
-    
+
     @mock_aws
     def test_get_file_wrong_username(self, test_table):
         fileName = 'test-file.txt'
@@ -58,9 +57,6 @@ class TestGetFileFromDynamo:
 
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
-        
+
         with pytest.raises(Exception):
-            retrievalInterface.getFileFromDynamo(filename, 'wrongUsername', tableName)
-
-
-
+            retrievalInterface.getFileFromDynamo(fileName, 'wrongUsername', tableName)

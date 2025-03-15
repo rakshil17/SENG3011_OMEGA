@@ -1,11 +1,11 @@
-# https://pypi.org/project/moto/ 
+# https://pypi.org/project/moto/
 # a mock for s3 to let me check that I am using boto3 correctly
 import pytest
 from moto import mock_aws
-import boto3
 from botocore.exceptions import ClientError
 
 from ..implementation.RetrievalInterface import RetrievalInterface
+
 
 # moto uses depreacted datetime.datetime.utcnow which causes a Deprecation Warning
 # Therefore, I am choosing to hide this warning
@@ -36,7 +36,7 @@ class TestPushToDynamo:
         with pytest.raises(ClientError) as errorInfo:
             retrievalInterface.pushToDynamo(fileName, fileContent, username, 'fakeTableName')
         assert errorInfo.value.response["Error"]["Code"] == "ResourceNotFoundException"
-    
+
     @mock_aws
     def test_user_does_not_exist(self, test_table):
         fileName = 'test-file.txt'
@@ -55,13 +55,10 @@ class TestPushToDynamo:
         tableName = 'test-table'
         username = 'user1'
 
-
         retrievalInterface = RetrievalInterface()
 
         response = retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
-        assert response == True
+        assert response is True
 
         with pytest.raises(Exception):
             retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
-
-
