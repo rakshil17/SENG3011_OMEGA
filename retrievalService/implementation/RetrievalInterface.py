@@ -112,7 +112,7 @@ class RetrievalInterface:
             dynamodb.update_item(
                 TableName=tableName,
                 Key={'username': {'S': username}},
-                UpdateExpression=f'REMOVE {'retrievedFiles'}[{fileIndex}]',
+                UpdateExpression=f'REMOVE retrievedFiles [{fileIndex}]',
                 ReturnValues='UPDATED_NEW'
             )
 
