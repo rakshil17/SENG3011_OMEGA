@@ -123,10 +123,3 @@ class RetrievalInterface:
             raise
         except Exception:
             raise
-
-
-if __name__ == "__main__":
-    DYNAMO_DB_NAME = "seng3011-test-dynamodb"
-    retrievalInterface = RetrievalInterface()
-    # found, content, index = retrievalInterface.getFileFromDynamo("boto_file", "user1", DYNAMO_DB_NAME)
-    retrievalInterface.deleteFromDynamo("extraFile", "user1", DYNAMO_DB_NAME)
