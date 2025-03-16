@@ -10,10 +10,11 @@ import sys
 app = Flask(__name__)
 
 AWS_S3_BUCKET_NAME = "seng3011-omega-25t1-testing-bucket"
+DYNAMO_DB_NAME = "seng3011-test-dynamodb"
 
 
 @app.route('/v1/retrieve/<username>/<filename>/', methods=['GET'])
-def retrieve(filename: str):
+def retrieve(username, filename: str):
     retrievalInterface = RetrievalInterface()
     try:
         # try to retrieve the file immediately in the dynamoDB
@@ -21,8 +22,14 @@ def retrieve(filename: str):
         # if not, get from S3, push to dynamo
 
         # return content
+        found, content, index = retrievalInterface.getFileFromDynamo(filename, username, DYNAMO_DB_NAME)
+        if found:
+            return content
+        else:
+            content = retrievalInterface.pull(AWS_S3_BUCKET_NAME, f"{username}_{filename}")
+            retrievalInterace.pushToDynamo(filename, content, username, DYNAMO_DB_NAME)
+            return content
 
-        return retrievalInterface.pull(AWS_S3_BUCKET_NAME, filename)
     except Exception as e:
         sys.stderr.write(f"(RetrievalMicroservice.retrieve) Exception: {e}")
 
