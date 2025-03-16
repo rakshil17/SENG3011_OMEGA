@@ -33,8 +33,8 @@ class RetrievalInterface:
         user's retrieved files. If the file is not found, then the boolean value
         will be false, the second value will be None and the integer will be -1.'''
 
-        session = boto3.Session(region_name='ap-southeast-1')
-        dynamodb = session.resource('dynamodb')
+        # session = boto3.Session(region_name='ap-southeast-1')
+        dynamodb = boto3.resource('dynamodb')
         try:
             table = dynamodb.Table(tableName)
 
@@ -86,7 +86,7 @@ class RetrievalInterface:
 
             return True
         except ClientError as e:
-            sys.stderr.write(f'''(Retrieval Interface.deleteFromDynamo) Client (DynamoDB)
+            sys.stderr.write(f'''(RetrievalInterface.pushToDynamo) Client (DynamoDB)
                 Error: {e.response['Error']['Code']}\n''')
             raise
         except Exception as e:
@@ -125,3 +125,11 @@ class RetrievalInterface:
             raise
         except Exception:
             raise
+
+
+if __name__ == "__main__":
+    DYNAMO_DB_NAME = "seng3011-test-dynamodb"
+    retrievalInterface = RetrievalInterface()
+    found, content, index = retrievalInterface.getFileFromDynamo("file2", "user1", DYNAMO_DB_NAME)
+
+    print(content)

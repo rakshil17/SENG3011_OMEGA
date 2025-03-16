@@ -23,7 +23,9 @@ def retrieve(username, filename: str):
 
         # return content
         found, content, index = retrievalInterface.getFileFromDynamo(filename, username, DYNAMO_DB_NAME)
+        print(f"found = {found}")
         if found:
+            print("Good job nate")
             return content
         else:
             content = retrievalInterface.pull(AWS_S3_BUCKET_NAME, f"{username}_{filename}")
@@ -31,8 +33,9 @@ def retrieve(username, filename: str):
             return content
 
     except Exception as e:
-        sys.stderr.write(f"(RetrievalMicroservice.retrieve) Exception: {e}")
-
+        sys.stderr.write(f"(RetrievalMicroservice.retrieve) Exception: {e}\n")
+        return f"{e}"
+        
 
 @app.route('/v1/delete', methods=['DELETE'])
 def delete():
@@ -47,8 +50,8 @@ def delete():
     except Exception as e:
         sys.stderr.write(f"(RetrievalMicroservice.delete) Exception: {e}")
 
-@app.route('/v1/list/<username>', methods=['GET'])
-def getAll():
+# @app.route('/v1/list/<username>', methods=['GET'])
+# def getAll():
     
 
 
