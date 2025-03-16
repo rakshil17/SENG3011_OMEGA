@@ -2,7 +2,7 @@
 # /retrieve
 # /list_files
 # /delete
-# /update           # more clarifaction would be good
+# /update
 
 from flask import Flask, request
 from RetrievalInterface import RetrievalInterface
@@ -12,23 +12,19 @@ app = Flask(__name__)
 AWS_S3_BUCKET_NAME = "seng3011-omega-25t1-testing-bucket"
 DYNAMO_DB_NAME = "seng3011-test-dynamodb"
 
-
 @app.route('/v1/retrieve/<username>/<filename>/', methods=['GET'])
 def retrieve(username, filename: str):
     retrievalInterface = RetrievalInterface()
     try:
-        # try to retrieve the file immediately in the dynamoDB
-        # if there
-        # if not, get from S3, push to dynamo
 
-        # return content
+        filename = f"{username}_{filename}"
         found, content, index = retrievalInterface.getFileFromDynamo(filename, username, DYNAMO_DB_NAME)
         print(f"found = {found}")
         if found:
             print("Good job nate")
             return content
         else:
-            content = retrievalInterface.pull(AWS_S3_BUCKET_NAME, f"{username}_{filename}")
+            content = retrievalInterface.pull(AWS_S3_BUCKET_NAME, f"{filename}")
             retrievalInterface.pushToDynamo(filename, content, username, DYNAMO_DB_NAME)
             return content
 
@@ -40,12 +36,12 @@ def retrieve(username, filename: str):
 @app.route('/v1/delete', methods=['DELETE'])
 def delete():
     filename = request.get_json()['filename']
-    filename = request.get_json()['username']
+    username = request.get_json()['username']
 
     retrievalInterface = RetrievalInterface()
     try:
         # delete from dynamodb
-        retrievalInterface.deleteOne(AWS_S3_BUCKET_NAME, filename)
+        retrievalInterface.deleteFromDynamo(filename, username, DYNAMO_DB_NAME)
         return f"Deleted {filename}"
     except Exception as e:
         sys.stderr.write(f"(RetrievalMicroservice.delete) Exception: {e}")
