@@ -20,7 +20,7 @@ def test_table(dynamodb_mock):
     with mock_aws():
         tableName = 'test-table'
 
-        table = dynamodb_mock.create_table(
+        dynamodb_mock.create_table(
             TableName=tableName,
             KeySchema=[
                 {'AttributeName': 'username', 'KeyType': 'HASH'}
@@ -41,7 +41,6 @@ def test_table(dynamodb_mock):
             Item=item
         )
 
-
         yield dynamodb_mock
 
         dynamodb_mock.delete_table(TableName=tableName)
@@ -58,7 +57,7 @@ def test_table_two_users(dynamodb_mock):
     with mock_aws():
         tableName = 'test-table'
 
-        table = dynamodb_mock.create_table(
+        dynamodb_mock.create_table(
             TableName=tableName,
             KeySchema=[
                 {'AttributeName': 'username', 'KeyType': 'HASH'}
@@ -80,7 +79,6 @@ def test_table_two_users(dynamodb_mock):
             'retrievedFiles': {'L': []}
         }
 
-
         dynamodb_mock.put_item(
             TableName=tableName,
             Item=item
@@ -90,7 +88,6 @@ def test_table_two_users(dynamodb_mock):
             TableName=tableName,
             Item=item2
         )
-
 
         yield dynamodb_mock
         dynamodb_mock.delete_table(TableName=tableName)

@@ -50,7 +50,7 @@ class TestDeleteFromDynamo:
             TableName=tableName,
             Key={'username': {'S': username}}
         ).get('Item').get('retrievedFiles').get('L')
-        
+
         assert len(retrievedFiles) == 1
 
         with pytest.raises(FileNotFoundError):

@@ -75,9 +75,10 @@ class RetrievalInterface:
             dynamodb.update_item(
                 TableName=tableName,
                 Key={'username': {'S': username}},
-                UpdateExpression=f'SET {'retrievedFiles'} = list_append(if_not_exists({'retrievedFiles'}, :empty_list), :new_values)',
+                UpdateExpression='''SET retrievedFiles =
+                    list_append(if_not_exists(retrievedFiles, :empty_list), :new_values)''',
                 ExpressionAttributeValues={
-                    ':new_values': {'L': [ {'M': new_object} ] },
+                    ':new_values': {'L': [{'M': new_object}]},
                     ':empty_list': {'L': []}
                 },
                 ReturnValues='UPDATED_NEW'
@@ -108,20 +109,13 @@ class RetrievalInterface:
             raise FileNotFoundError("Attempting to delete a file that you have never retrieved")
 
         try:
-            # table.update_item(
-            #     Key={
-            #         "username": username
-            #     },
-            #     UpdateExpression=f"REMOVE retrievedFiles [{fileIndex}]",
-            #     ReturnValues="UPDATED_NEW"
-            # )
-            response = dynamodb.update_item(
+            dynamodb.update_item(
                 TableName=tableName,
                 Key={'username': {'S': username}},
                 UpdateExpression=f'REMOVE {'retrievedFiles'}[{fileIndex}]',
                 ReturnValues='UPDATED_NEW'
             )
-            
+
             return True
         except ClientError as e:
             sys.stderr.write(f'''(Retrieval Interface.deleteFromDynamo) Client (DynamoDB)

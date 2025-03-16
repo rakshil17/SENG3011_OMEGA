@@ -26,7 +26,6 @@ class TestPushToDynamo:
             Key={'username': {'S': username}}
         ).get('Item').get('retrievedFiles').get('L')
 
-
         assert len(retrievedFiles) == 1
 
         assert retrievedFiles[0].get('M').get('filename').get('S') == fileName
