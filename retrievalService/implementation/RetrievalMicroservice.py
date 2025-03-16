@@ -1,13 +1,8 @@
-# ROUTES TO COMPLETE:
-# /retrieve
-# /list_files
-# /delete
-# /update
-
 from flask import Flask, request
 from RetrievalInterface import RetrievalInterface
 import sys
-app = Flask(__name__)
+
+app =  Flask(__name__)
 
 AWS_S3_BUCKET_NAME = "seng3011-omega-25t1-testing-bucket"
 DYNAMO_DB_NAME = "seng3011-test-dynamodb"
@@ -16,12 +11,8 @@ DYNAMO_DB_NAME = "seng3011-test-dynamodb"
 def retrieve(username, filename: str):
     retrievalInterface = RetrievalInterface()
     try:
-
-        filename = f"{username}_{filename}"
         found, content, index = retrievalInterface.getFileFromDynamo(filename, username, DYNAMO_DB_NAME)
-        print(f"found = {found}")
         if found:
-            print("Good job nate")
             return content
         else:
             content = retrievalInterface.pull(AWS_S3_BUCKET_NAME, f"{filename}")
