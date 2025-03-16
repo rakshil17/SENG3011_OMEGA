@@ -2,6 +2,22 @@ import pytest
 import boto3
 from moto import mock_aws
 
+@pytest.fixture(scope="function")
+def s3_mock():
+    bucket_name = 'test-bucket'
+    fileName = 'test-file.txt'
+    file_content = 'Hello, Moto!'
+    
+    with mock_aws():
+        # Create a mock S3 bucket and upload a test file.
+        s3 = boto3.client('s3')
+        s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={
+            'LocationConstraint': 'ap-southeast-2'
+        })
+        s3.put_object(Bucket=bucket_name, Key=fileName, Body=file_content.encode('utf-8'))
+
+        yield s3
+
 
 @pytest.fixture(scope="function")
 def dynamodb_mock():
