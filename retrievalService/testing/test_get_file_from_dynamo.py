@@ -18,8 +18,7 @@ class TestGetFileFromDynamo:
 
         found, retrievedFile, index = retrievalInterface.getFileFromDynamo(fileName, username, tableName)
 
-        assert retrievedFile.get('content') == fileContent
-        assert retrievedFile.get('filename') == fileName
+        assert retrievedFile == fileContent
 
     @mock_aws
     def test_get_file_from_wrong_user(self, test_table_two_users):

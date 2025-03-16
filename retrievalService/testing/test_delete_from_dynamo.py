@@ -18,13 +18,22 @@ class TestDeleteFromDynamo:
 
         retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
 
-        retrievedFiles = test_table.get_item(Key={'username': username}).get('Item').get('retrievedFiles')
+        retrievedFiles = test_table.get_item(
+            TableName=tableName,
+            Key={'username': {'S': username}}
+        ).get('Item').get('retrievedFiles').get('L')
+
+        # retrievedFiles = test_table.get_item(Key={'username': username}).get('Item').get('retrievedFiles')
         assert len(retrievedFiles) == 1
 
         response = retrievalInterface.deleteFromDynamo(fileName, username, tableName)
         assert response is True
 
-        retrievedFiles = test_table.get_item(Key={'username': username}).get('Item').get('retrievedFiles')
+        # retrievedFiles = test_table.get_item(Key={'username': username}).get('Item').get('retrievedFiles')
+        retrievedFiles = test_table.get_item(
+            TableName=tableName,
+            Key={'username': {'S': username}}
+        ).get('Item').get('retrievedFiles').get('L')
         assert len(retrievedFiles) == 0
 
     @mock_aws
@@ -37,7 +46,11 @@ class TestDeleteFromDynamo:
         retrievalInterface = RetrievalInterface()
 
         retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
-        retrievedFiles = test_table.get_item(Key={'username': username}).get('Item').get('retrievedFiles')
+        retrievedFiles = test_table.get_item(
+            TableName=tableName,
+            Key={'username': {'S': username}}
+        ).get('Item').get('retrievedFiles').get('L')
+        
         assert len(retrievedFiles) == 1
 
         with pytest.raises(FileNotFoundError):

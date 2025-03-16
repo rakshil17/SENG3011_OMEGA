@@ -21,10 +21,16 @@ class TestPushToDynamo:
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
 
-        retrievedFiles = test_table.get_item(Key={'username': username}).get('Item').get('retrievedFiles')
+        retrievedFiles = test_table.get_item(
+            TableName=tableName,
+            Key={'username': {'S': username}}
+        ).get('Item').get('retrievedFiles').get('L')
+
+
         assert len(retrievedFiles) == 1
-        assert retrievedFiles[0].get('filename') == fileName
-        assert retrievedFiles[0].get('content') == fileContent
+
+        assert retrievedFiles[0].get('M').get('filename').get('S') == fileName
+        assert retrievedFiles[0].get('M').get('content').get('S') == fileContent
 
     @mock_aws
     def test_table_not_exist(self, test_table):

@@ -7,8 +7,7 @@ from moto import mock_aws
 def dynamodb_mock():
     """Sets up a mock DynamoDB table before each test using mock_aws."""
     with mock_aws():
-        session = boto3.Session(region_name='ap-southeast-1')
-        dynamodb = session.resource("dynamodb")
+        dynamodb = boto3.client('dynamodb', region_name='ap-southeast-2')
         yield dynamodb
 
 
@@ -32,16 +31,20 @@ def test_table(dynamodb_mock):
             ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5},
         )
         item = {
-            'username': username,
-            'analysis': [],
-            'retrievedFiles': []
+            'username': {'S': username},
+            'analysis': {'L': []},
+            'retrievedFiles': {'L': []}
         }
 
-        table.put_item(Item=item)
+        dynamodb_mock.put_item(
+            TableName=tableName,
+            Item=item
+        )
 
-        yield table
-        # clean up
-        table.delete()
+
+        yield dynamodb_mock
+
+        dynamodb_mock.delete_table(TableName=tableName)
 
 
 # database with two users
@@ -66,20 +69,28 @@ def test_table_two_users(dynamodb_mock):
             ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5},
         )
         item = {
-            'username': username,
-            'analysis': [],
-            'retrievedFiles': []
+            'username': {'S': username},
+            'analysis': {'L': []},
+            'retrievedFiles': {'L': []}
         }
 
         item2 = {
-            'username': username2,
-            'analysis': [],
-            'retrievedFiles': []
+            'username': {'S': username2},
+            'analysis': {'L': []},
+            'retrievedFiles': {'L': []}
         }
 
-        table.put_item(Item=item)
-        table.put_item(Item=item2)
 
-        yield table
-        # clean up
-        table.delete()
+        dynamodb_mock.put_item(
+            TableName=tableName,
+            Item=item
+        )
+
+        dynamodb_mock.put_item(
+            TableName=tableName,
+            Item=item2
+        )
+
+
+        yield dynamodb_mock
+        dynamodb_mock.delete_table(TableName=tableName)
