@@ -10,6 +10,7 @@ DYNAMO_DB_NAME = "seng3011-test-dynamodb"
 @app.route('/v1/retrieve/<username>/<filename>/', methods=['GET'])
 def retrieve(username, filename: str):
     retrievalInterface = RetrievalInterface()
+    filename = f"{username}_{filename}"
     try:
         found, content, index = retrievalInterface.getFileFromDynamo(filename, username, DYNAMO_DB_NAME)
         if found:
