@@ -73,12 +73,17 @@ class RetrievalInterface:
             userInfo = response.get('Item')
             if not userInfo:
                 raise Exception("Username not found - ensure you have registered")
-            files = userInfo.get('retrievedFiles').get('L')
+            
+            deserializer = TypeDeserializer()
+            unmarshalledItem = {k: deserializer.deserialize(v) for k, v in response['Item'].items()}
+
+            files = unmarshalledItem.get('retrievedFiles')
 
             for i, f in enumerate(files):
-                file = f.get('M')
-                if file.get('filename').get('S') == fileName:
-                    return (True, file.get('content').get('S'), i)
+                file = f.get('filename')
+                if file == fileName:
+                    
+                    return (True, f.get('content'), i)
 
             return (False, None, -1)
 
@@ -92,10 +97,26 @@ class RetrievalInterface:
     def pushToDynamo(self, fileName: str, fileContent: str, username: str, tableName: str):
         dynamodb = boto3.client('dynamodb', region_name='ap-southeast-2')
 
+        contentList = []
+        for line in fileContent.split('\n'):
+            date = "1998-01-01"
+            closeVal = "-1"
+            if line.count('#') == 1:            # will change depending on what Rakshil did
+                date, closeVal = line.split('#')
+
+            contentList.append({
+                'M': {
+                    'closeVal': {'S': closeVal},
+                    'date': {'S': date}
+                }
+            })
+
         new_object = {
-            'content': {'S': fileContent},
+            'stockName': {'S': fileName.removesuffix('.txt')},      # will change depending on what Rakshil did
+            'content': {'L': contentList},
             'filename': {'S': fileName}
         }
+
         try:
             found, file, index = self.getFileFromDynamo(fileName, username, tableName)
             if found:
