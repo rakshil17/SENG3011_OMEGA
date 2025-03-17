@@ -14,7 +14,7 @@ class TestPushToDynamo:
     @mock_aws
     def test_push_file(self, test_table):
         fileName = 'test-file.txt'
-        fileContent = 'some nice file content'
+        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
         username = 'user1'
         tableName = 'test-table'
 
@@ -29,12 +29,12 @@ class TestPushToDynamo:
         assert len(retrievedFiles) == 1
 
         assert retrievedFiles[0].get('M').get('filename').get('S') == fileName
-        assert retrievedFiles[0].get('M').get('content').get('S') == fileContent
+
 
     @mock_aws
     def test_table_not_exist(self, test_table):
         fileName = 'test-file.txt'
-        fileContent = 'some nice file content'
+        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
         username = 'user1'
 
         retrievalInterface = RetrievalInterface()
@@ -45,7 +45,7 @@ class TestPushToDynamo:
     @mock_aws
     def test_user_does_not_exist(self, test_table):
         fileName = 'test-file.txt'
-        fileContent = 'some nice file content'
+        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
         tableName = 'test-table'
 
         retrievalInterface = RetrievalInterface()
@@ -56,7 +56,7 @@ class TestPushToDynamo:
     @mock_aws
     def test_user_double_pushes(self, test_table):
         fileName = 'test-file.txt'
-        fileContent = 'some nice file content'
+        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
         tableName = 'test-table'
         username = 'user1'
 

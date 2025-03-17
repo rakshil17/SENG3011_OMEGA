@@ -12,7 +12,7 @@ class TestDeleteFromDynamo:
         fileName = 'test-file.txt'
         username = 'user1'
         tableName = 'test-table'
-        fileContent = 'niceFileContent'
+        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
 
         retrievalInterface = RetrievalInterface()
 
@@ -41,7 +41,7 @@ class TestDeleteFromDynamo:
         fileName = 'test-file.txt'
         username = 'user1'
         tableName = 'test-table'
-        fileContent = 'niceFileContent'
+        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
 
         retrievalInterface = RetrievalInterface()
 
@@ -61,7 +61,7 @@ class TestDeleteFromDynamo:
         fileName = 'test-file.txt'
         username = 'user1'
         tableName = 'test-table'
-        fileContent = 'niceFileContent'
+        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
 
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
@@ -76,7 +76,7 @@ class TestDeleteFromDynamo:
         username = 'user1'
         username2 = 'user2'
         tableName = 'test-table'
-        fileContent = 'niceFileContent'
+        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
 
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
@@ -89,7 +89,7 @@ class TestDeleteFromDynamo:
         fileName = 'test-file.txt'
         username = 'user1'
         tableName = 'test-table'
-        fileContent = 'niceFileContent'
+        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
 
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)

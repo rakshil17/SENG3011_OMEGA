@@ -99,10 +99,16 @@ class RetrievalInterface:
 
         contentList = []
         for line in fileContent.split('\n'):
+            # if we have a blank line (especially at the ned of a file)
+            if line == '':
+                continue
             date = "1998-01-01"
             closeVal = "-1"
             if line.count('#') == 1:            # will change depending on what Rakshil did
                 date, closeVal = line.split('#')
+            else:
+                raise Exception('''file seems to have malformed data; need to coordinate 
+                    with Data Collection Microservice''')
 
             contentList.append({
                 'M': {

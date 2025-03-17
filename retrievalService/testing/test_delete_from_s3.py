@@ -17,7 +17,7 @@ class TestDeleteFromS3:
     def test_delete_file(self):
         bucketName = 'test-bucket'
         fileName = 'test-file.txt'
-        fileContent = 'some nice file content'
+        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
 
         s3 = boto3.client('s3')
         s3.create_bucket(Bucket=bucketName, CreateBucketConfiguration={
@@ -38,7 +38,7 @@ class TestDeleteFromS3:
     def test_delete_non_existent_file(self):
         bucketName = 'test-bucket'
         fileName = 'test-file.txt'
-        fileContent = 'some nice file content'
+        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
 
         s3 = boto3.client('s3')
         s3.create_bucket(Bucket=bucketName, CreateBucketConfiguration={
@@ -57,7 +57,7 @@ class TestDeleteFromS3:
     def test_delete_non_existent_bucket(self):
         bucketName = 'test-bucket'
         fileName = 'test-file.txt'
-        fileContent = 'some nice file content'
+        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
 
         s3 = boto3.client('s3')
         s3.create_bucket(Bucket=bucketName, CreateBucketConfiguration={
@@ -73,7 +73,7 @@ class TestDeleteFromS3:
     def test_double_delete(self):
         bucketName = 'test-bucket'
         fileName = 'test-file.txt'
-        fileContent = 'some nice file content'
+        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
 
         s3 = boto3.client('s3')
         s3.create_bucket(Bucket=bucketName, CreateBucketConfiguration={
