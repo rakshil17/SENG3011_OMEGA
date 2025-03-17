@@ -1,4 +1,6 @@
 import boto3
+from boto3.dynamodb.types import TypeDeserializer
+
 # won't be found in the repository because it is part of the gitignore file
 # from secrets import AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_S3_BUCKET_NAME, AWS_REGION
 import sys
@@ -7,6 +9,33 @@ from botocore.exceptions import ClientError
 
 
 class RetrievalInterface:
+
+    def register(self, username, tableName) -> str:
+
+        dynamodb = boto3.client('dynamodb', region_name='ap-southeast-2')
+        try:
+            response = dynamodb.get_item(
+                TableName=tableName,
+                Key={'username': {'S': username}}
+            )
+
+            if response.get('Item'):
+                raise Exception('User already exists, cannot register this username')
+
+            response = dynamodb.put_item(
+                TableName=tableName,
+                Item={
+                    'username': {'S': username},
+                    'retrievedFiles': {'L': []},
+                }
+            )
+
+        except Exception as e:
+            sys.stderr.write(f'''(Retrieval Interface.register)
+                Error: {e}\n''')
+            raise
+            
+
     def pull(self, bucketName: str, fileNameOnS3: str) -> str:
         '''Pulls a specified file from the specified s3 bucket.
         Will return the content of that file as a string.
@@ -123,3 +152,30 @@ class RetrievalInterface:
             raise
         except Exception:
             raise
+
+    def listUserFiles(self, username: str, tableName: str):
+        dynamodb = boto3.client('dynamodb', region_name='ap-southeast-2')
+        try:
+            response = dynamodb.get_item(
+                TableName=tableName,
+                Key={'username': {'S': username}}
+            )
+
+            if response.get('Item', None) is None:
+                raise Exception('User does not seem to exist, ensure you have registered')
+
+
+            deserializer = TypeDeserializer()
+            unmarshalledItem = {k: deserializer.deserialize(v) for k, v in response['Item'].items()}
+
+            return unmarshalledItem.get('retrievedFiles')
+
+        except Exception as e:
+            sys.stderr.write(f'''(Retrieval Interface.register)
+                Error: {e}\n''')
+            raise
+
+if __name__ == "__main__":
+    DYNAMO_DB_NAME = "seng3011-test-dynamodb"
+    ri = RetrievalInterface()
+    ri.listUserFiles("user1", DYNAMO_DB_NAME)
