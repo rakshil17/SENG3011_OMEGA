@@ -21,13 +21,13 @@ def register():
 @app.route('/v1/retrieve/<username>/<filename>/', methods=['GET'])
 def retrieve(username, filename: str):
     retrievalInterface = RetrievalInterface()
-    filenameS3 = f"{username}_{filename}"     # need to think about Rakshil's file formatting here
+    filenameS3 = f"{username}#{filename}"     # need to think about Rakshil's file formatting here
     try:
         found, content, index = retrievalInterface.getFileFromDynamo(filename, username, DYNAMO_DB_NAME)
 
         if found:
             return {
-                'stock_name': filename.removesuffix('.txt'),
+                'stock_name': filename.removesuffix('_stock_data.csv'),
                 'data': content
             }
         else:
@@ -36,7 +36,7 @@ def retrieve(username, filename: str):
             retrievalInterface.pushToDynamo(filename, content, username, DYNAMO_DB_NAME)
             found, content, index = retrievalInterface.getFileFromDynamo(filename, username, DYNAMO_DB_NAME)
             return {
-                'stock_name': filename.removesuffix('.txt'),     # will change depending on what Rakshil did
+                'stock_name': filename.removesuffix('_stock_data.csv'),     # will change depending on what Rakshil did
                 'data': content
             }
 

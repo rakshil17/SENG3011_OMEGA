@@ -1,5 +1,6 @@
 import boto3
 from boto3.dynamodb.types import TypeDeserializer
+import csv
 
 # won't be found in the repository because it is part of the gitignore file
 # from secrets import AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_S3_BUCKET_NAME, AWS_REGION
@@ -96,22 +97,16 @@ class RetrievalInterface:
     # Does NOT check if the file already exists in the user's allocated memory
     def pushToDynamo(self, fileName: str, fileContent: str, username: str, tableName: str):
         dynamodb = boto3.client('dynamodb', region_name='ap-southeast-2')
+        
+        reader = csv.DictReader(fileContent.split('\n'), delimiter=',')
 
         contentList = []
-        for line in fileContent.split('\n'):
+        for line in list(reader):
             # if we have a blank line (especially at the ned of a file)
             if line == '':
                 continue
-            date = "1998-01-01"
-            closeVal = "-1"
-            if line.count('#') == 1:            # will change depending on what Rakshil did
-                date, closeVal = line.split('#')
-            else:
-                raise Exception('''file seems to have malformed data; need to coordinate 
-                    with Data Collection Microservice''')
-
-            if closeVal == "-1":
-                break
+            date = line.get('Date')
+            closeVal = line.get('Close')
 
             contentList.append({
                 'M': {
@@ -121,7 +116,7 @@ class RetrievalInterface:
             })
 
         new_object = {
-            'stockName': {'S': fileName.removesuffix('.txt')},      # will change depending on what Rakshil did
+            'stockName': {'S': fileName.removesuffix('_stock_data.csv')},      # will change depending on what Rakshil did
             'content': {'L': contentList},
             'filename': {'S': fileName}
         }
