@@ -3,3 +3,7 @@ moto[ec2,s3,all]
 pytest
 coverage
 flask
+yfinance
+pandas
+requests
+botocore.exceptions
