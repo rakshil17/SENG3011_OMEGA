@@ -18,25 +18,25 @@ def register():
     except Exception as e:
         return f"(RetrievalMicroservice.retrieve) Exception: {e}\n"
 
-@app.route('/v1/retrieve/<username>/<filename>/', methods=['GET'])
-def retrieve(username, filename: str):
+@app.route('/v1/retrieve/<username>/<stockname>/', methods=['GET'])
+def retrieve(username, stockname: str):
     retrievalInterface = RetrievalInterface()
-    filenameS3 = f"{username}#{filename}"     # need to think about Rakshil's file formatting here
+    filenameS3 = f"{username}#{stockname}_stock_data.csv"     # need to think about Rakshil's file formatting here
     try:
-        found, content, index = retrievalInterface.getFileFromDynamo(filename, username, DYNAMO_DB_NAME)
+        found, content, index = retrievalInterface.getFileFromDynamo(stockname, username, DYNAMO_DB_NAME)
 
         if found:
             return {
-                'stock_name': filename.removesuffix('_stock_data.csv'),
+                'stock_name': stockname,
                 'data': content
             }
         else:
             content = retrievalInterface.pull(AWS_S3_BUCKET_NAME, f"{filenameS3}")
             # need to format Rakshil's S3 content format into DynamoDB content
-            retrievalInterface.pushToDynamo(filename, content, username, DYNAMO_DB_NAME)
-            found, content, index = retrievalInterface.getFileFromDynamo(filename, username, DYNAMO_DB_NAME)
+            retrievalInterface.pushToDynamo(stockname, content, username, DYNAMO_DB_NAME)
+            found, content, index = retrievalInterface.getFileFromDynamo(stockname, username, DYNAMO_DB_NAME)
             return {
-                'stock_name': filename.removesuffix('_stock_data.csv'),     # will change depending on what Rakshil did
+                'stock_name': stockname,     # will change depending on what Rakshil did
                 'data': content
             }
 
