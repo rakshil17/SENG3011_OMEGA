@@ -16,8 +16,7 @@ def register():
         retrievalInterface.register(username, DYNAMO_DB_NAME)
         return f"User {username} registered successfully"
     except Exception as e:
-        sys.stderr.write(f"(RetrievalMicroservice.retrieve) Exception: {e}\n")
-        return f"{e}"
+        return f"(RetrievalMicroservice.retrieve) Exception: {e}\n"
 
 @app.route('/v1/retrieve/<username>/<filename>/', methods=['GET'])
 def retrieve(username, filename: str):
@@ -28,8 +27,8 @@ def retrieve(username, filename: str):
 
         if found:
             return {
-                'StockName': filename.removesuffix('.txt'),
-                'StockData': content
+                'stock_name': filename.removesuffix('.txt'),
+                'data': content
             }
         else:
             content = retrievalInterface.pull(AWS_S3_BUCKET_NAME, f"{filenameS3}")
@@ -37,13 +36,12 @@ def retrieve(username, filename: str):
             retrievalInterface.pushToDynamo(filename, content, username, DYNAMO_DB_NAME)
             found, content, index = retrievalInterface.getFileFromDynamo(filename, username, DYNAMO_DB_NAME)
             return {
-                'StockName': filename.removesuffix('.txt'),     # will change depending on what Rakshil did
-                'StockData': content
+                'stock_name': filename.removesuffix('.txt'),     # will change depending on what Rakshil did
+                'data': content
             }
 
     except Exception as e:
-        sys.stderr.write(f"(RetrievalMicroservice.retrieve) Exception: {e}\n")
-        return f"{e}"
+        return f"(RetrievalMicroservice.retrieve) Exception: {e}\n"
 
 
 @app.route('/v1/delete/', methods=['DELETE'])
@@ -57,7 +55,7 @@ def delete():
         retrievalInterface.deleteFromDynamo(filename, username, DYNAMO_DB_NAME)
         return f"Deleted {filename}"
     except Exception as e:
-        sys.stderr.write(f"(RetrievalMicroservice.delete) Exception: {e}")
+        return f"(RetrievalMicroservice.delete) Exception: {e}"
 
 @app.route('/v1/list/<username>/', methods=['GET'])
 def getAll(username):
@@ -66,7 +64,7 @@ def getAll(username):
         return retrievalInterface.listUserFiles(username, DYNAMO_DB_NAME)
 
     except Exception as e:
-        sys.stderr.write(f"(RetrievalMicroservice.delete) Exception: {e}")
+        return f"(RetrievalMicroservice.delete) Exception: {e}"
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5001, debug=True)

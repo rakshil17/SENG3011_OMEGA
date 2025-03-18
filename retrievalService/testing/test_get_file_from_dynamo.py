@@ -24,8 +24,8 @@ class TestGetFileFromDynamo:
                 break
 
             date, closeVal = line.split('#')
-            assert retrievedFile[i].get('closeVal') == closeVal
-            assert retrievedFile[i].get('date') == date
+            assert retrievedFile[i].get('Close') == closeVal
+            assert retrievedFile[i].get('Date') == date
 
 
     @mock_aws

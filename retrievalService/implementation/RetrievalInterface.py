@@ -110,10 +110,13 @@ class RetrievalInterface:
                 raise Exception('''file seems to have malformed data; need to coordinate 
                     with Data Collection Microservice''')
 
+            if closeVal == "-1":
+                break
+
             contentList.append({
                 'M': {
-                    'closeVal': {'S': closeVal},
-                    'date': {'S': date}
+                    'Close': {'S': closeVal},
+                    'Date': {'S': date}
                 }
             })
 
@@ -196,6 +199,8 @@ class RetrievalInterface:
             unmarshalledItem = {k: deserializer.deserialize(v) for k, v in response['Item'].items()}
 
             return unmarshalledItem.get('retrievedFiles')
+
+            return [stock.get('stockName') for stock in unmarshalledItem.get('retrievedFiles')]
 
         except Exception as e:
             sys.stderr.write(f'''(Retrieval Interface.register)
