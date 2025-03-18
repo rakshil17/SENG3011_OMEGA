@@ -6,4 +6,3 @@ flask
 yfinance
 pandas
 requests
-botocore.exceptions
