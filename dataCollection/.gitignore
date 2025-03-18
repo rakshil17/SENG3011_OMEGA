@@ -1,0 +1,6 @@
+/venv
+AAPL_stock_data.csv
+*.csv
+/__pycache__
+.coverage
+/.pytest_cache
