@@ -6,3 +6,4 @@ flask
 yfinance
 pandas
 requests
+pytest-mock
