@@ -40,7 +40,7 @@ def search_ticker(company_name):
     """
     try:
         url = f"https://query2.finance.yahoo.com/v1/finance/search?q={company_name}"
-        headers = {"User-Agent": "Mozilla/5.0"}  # Yahoo Finance sometimes requires a user-agent
+        headers = {"User-Agent": "Mozilla/5.0"}
         response = requests.get(url, headers=headers)
 
         if response.status_code == 200:
@@ -55,7 +55,7 @@ def search_ticker(company_name):
     except Exception as e:
         return None
 
-def get_stock_data(stock_ticker, name, period="1mo"):
+def get_stock_data(stock_ticker, company, name, period="1mo"):
     """
     Fetches historical stock data using a valid ticker symbol.
     """
@@ -68,8 +68,9 @@ def get_stock_data(stock_ticker, name, period="1mo"):
 
         hist = hist[["Open", "High", "Low", "Close", "Volume", "Dividends", "Stock Splits"]]
         hist.reset_index(inplace=True)
+        hist["Date"] = hist["Date"].dt.strftime("%Y/%m/%d")
 
-        file_path = f"{name}#{stock_ticker}_stock_data.csv"
+        file_path = f"{name}#{company}_stock_data.csv"
         hist.to_csv(file_path, index=False)
         
         write_to_client_s3(file_path)
@@ -91,14 +92,15 @@ def stock_info():
     if not company_name:
         return jsonify({"error": "Please provide a company name."}), 400
 
-    company_name = company_name.strip()
+    company_name = company_name.strip().lower()
+    name = name.strip().lower()
 
     stock_ticker = search_ticker(company_name)
 
     if not stock_ticker:
         return jsonify({"error": f"Could not find a stock ticker for '{company_name}'."}), 404
 
-    file_path, stock_data = get_stock_data(stock_ticker, name)
+    file_path, stock_data = get_stock_data(stock_ticker,company_name, name)
 
     if stock_data is None:
         return jsonify({"error": f"Stock data for '{stock_ticker}' not found or invalid."}), 404
@@ -109,6 +111,49 @@ def stock_info():
         "file": file_path,
         "data": stock_data
     })
+
+@app.route("/check_stock")
+def check_stock():
+    company_name = request.args.get("company")
+    name = request.args.get("name")
+
+    if not company_name or not name:
+        return jsonify({"error": "Please provide both 'company' and 'name'."}), 400
+
+    # Construct file path (same as in `get_stock_data`)
+    file_path = f"{name}#{company_name}_stock_data.csv"
+
+    # Assume Role for S3 access
+    sts_client = boto3.client('sts')
+    assumed_role_object = sts_client.assume_role(
+        RoleArn=CLIENT_ROLE_ARN,
+        RoleSessionName="AssumeRoleSession1"
+    )
+    credentials = assumed_role_object['Credentials']
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=credentials['AccessKeyId'],
+        aws_secret_access_key=credentials['SecretAccessKey'],
+        aws_session_token=credentials['SessionToken']
+    )
+
+    try:
+        # Check if file exists in S3 bucket
+        s3.head_object(Bucket='seng3011-omega-25t1-testing-bucket', Key= f"{name}#{company_name}_stock_data.csv")
+        return jsonify({
+            "exists": True,
+            "message": f"Stock data for {name} for '{company_name}' exists in S3.",
+            "file": file_path
+        })
+    except s3.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            return jsonify({
+                "exists": False,
+                "message": f"No stock data found for {name} for '{company_name}' in S3.",
+                "file": file_path
+            })
+        else:
+            return jsonify({"error": f"Error checking S3: {e}"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
