@@ -3,10 +3,10 @@ import yfinance as yf
 import pandas as pd
 import requests
 import boto3
+from botocore.exceptions import ClientError
 
 app = Flask(__name__)
 
-#hwy
 
 CLIENT_ROLE_ARN = "arn:aws:iam::339712883212:role/sharing-s3-bucket"
 CLIENT_BUCKET_NAME = "seng3011-omega-25t1-testing-bucket"
@@ -54,21 +54,18 @@ def search_ticker(company_name):
 
     except Exception as e:
         return None
-
+    
 def get_stock_data(stock_ticker, company, name, period="1mo"):
-    """
-    Fetches historical stock data using a valid ticker symbol.
-    """
     try:
         stock = yf.Ticker(stock_ticker)
         hist = stock.history(period=period)
 
         if hist.empty:
-            return None, None  
+            return None, None
 
         hist = hist[["Open", "High", "Low", "Close", "Volume", "Dividends", "Stock Splits"]]
         hist.reset_index(inplace=True)
-        hist["Date"] = hist["Date"].dt.strftime("%Y/%m/%d")
+        hist["Date"] = hist["Date"].dt.strftime("%Y-%m-%d")
 
         file_path = f"{name}#{company}_stock_data.csv"
         hist.to_csv(file_path, index=False)
@@ -76,9 +73,9 @@ def get_stock_data(stock_ticker, company, name, period="1mo"):
         write_to_client_s3(file_path)
 
         return file_path, hist.to_dict(orient="records")
-
     except Exception as e:
-        return None, str(e)
+        print(f"ERROR in get_stock_data: {e}")
+        return None, None
 
 @app.route("/")
 def home():
@@ -86,31 +83,35 @@ def home():
 
 @app.route("/stockInfo")
 def stock_info():
-    company_name = request.args.get("company")
-    name = request.args.get("name")
+    try:
+        company_name = request.args.get("company")
+        name = request.args.get("name")
 
-    if not company_name:
-        return jsonify({"error": "Please provide a company name."}), 400
+        if not company_name:
+            return jsonify({"error": "Please provide a company name."}), 400
 
-    company_name = company_name.strip().lower()
-    name = name.strip().lower()
+        company_name = company_name.strip().lower()
+        if name:
+            name = name.strip().lower()
 
-    stock_ticker = search_ticker(company_name)
+        stock_ticker = search_ticker(company_name)
 
-    if not stock_ticker:
-        return jsonify({"error": f"Could not find a stock ticker for '{company_name}'."}), 404
+        if not stock_ticker:
+            return jsonify({"error": f"Could not find a stock ticker for '{company_name}'."}), 404
 
-    file_path, stock_data = get_stock_data(stock_ticker,company_name, name)
+        file_path, stock_data = get_stock_data(stock_ticker,company_name, name)
 
-    if stock_data is None:
-        return jsonify({"error": f"Stock data for '{stock_ticker}' not found or invalid."}), 404
+        if stock_data is None:
+            return jsonify({"error": f"Stock data for '{stock_ticker}' not found or invalid."}), 404
 
-    return jsonify({
-        "message": "Stock data retrieved successfully",
-        "ticker": stock_ticker,
-        "file": file_path,
-        "data": stock_data
-    })
+        return jsonify({
+            "message": "Stock data retrieved successfully",
+            "ticker": stock_ticker,
+            "file": file_path,
+            "data": stock_data
+        })
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 @app.route("/check_stock")
 def check_stock():
@@ -119,6 +120,9 @@ def check_stock():
 
     if not company_name or not name:
         return jsonify({"error": "Please provide both 'company' and 'name'."}), 400
+
+    company_name = company_name.strip().lower()
+    name = name.strip().lower()
 
     # Construct file path (same as in `get_stock_data`)
     file_path = f"{name}#{company_name}_stock_data.csv"
@@ -145,11 +149,11 @@ def check_stock():
             "message": f"Stock data for {name} for '{company_name}' exists in S3.",
             "file": file_path
         })
-    except s3.exceptions.ClientError as e:
+    except ClientError as e:
         if e.response['Error']['Code'] == "404":
             return jsonify({
                 "exists": False,
-                "message": f"No stock data found for {name} for '{company_name}' in S3.",
+                "message": f"No stock data found for '{company_name}' in S3.",
                 "file": file_path
             })
         else:
