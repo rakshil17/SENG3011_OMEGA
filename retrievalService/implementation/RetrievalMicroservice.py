@@ -2,6 +2,7 @@ from flask import Flask, request
 from RetrievalInterface import RetrievalInterface
 import sys
 from datetime import datetime
+from pytz import timezone
 
 app =  Flask(__name__)
 
@@ -32,7 +33,7 @@ def retrieve(username, stockname: str):
                 'dataset_type': 'Daily stock data',
                 'dataset_id': 'http://seng3011-omega-25t1-testing-bucket.s3-ap-southeast-2-amazonaws.com',
                 'time_object': {
-                    'timestamp': f'{datetime.now()}',
+                    'timestamp': f'{str(datetime.now(timezone('Australia/Sydney'))).split('+')[0]}',
                     'timezone': 'GMT+11' 
                 },
                 'stock_name': stockname,
@@ -49,7 +50,7 @@ def retrieve(username, stockname: str):
                 'dataset_type': 'Daily stock data',
                 'dataset_id': 'http://seng3011-omega-25t1-testing-bucket.s3-ap-southeast-2-amazonaws.com',
                 'time_object': {
-                    'timestamp': f'{datetime.now()}',
+                    'timestamp': f'{str(datetime.now(timezone('Australia/Sydney'))).split('+')[0]}',
                     'timezone': 'GMT+11' 
                 },
                 'stock_name': stockname,
