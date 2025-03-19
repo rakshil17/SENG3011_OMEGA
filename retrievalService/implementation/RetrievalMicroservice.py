@@ -1,8 +1,11 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
+from botocore.exceptions import ClientError
 from RetrievalInterface import RetrievalInterface
 import sys
 from datetime import datetime
 from pytz import timezone
+
+import json
 
 app =  Flask(__name__)
 
@@ -16,9 +19,9 @@ def register():
 
     try:
         retrievalInterface.register(username, DYNAMO_DB_NAME)
-        return f"User {username} registered successfully"
-    except Exception as e:
-        return f"(RetrievalMicroservice.retrieve) Exception: {e}\n"
+        return f"User {username} registered successfully", 200
+    except ClientError as e:
+        return f"(RetrievalMicroservice.retrieve) Exception: Please check the provied table name\n", 401
 
 @app.route('/v1/retrieve/<username>/<stockname>/', methods=['GET'])
 def retrieve(username, stockname: str):
@@ -28,7 +31,7 @@ def retrieve(username, stockname: str):
         found, content, index = retrievalInterface.getFileFromDynamo(stockname, username, DYNAMO_DB_NAME)
 
         if found:
-            return {
+            return json.dumps({
                 'data_source': "yahoo_finance",
                 'dataset_type': 'Daily stock data',
                 'dataset_id': 'http://seng3011-omega-25t1-testing-bucket.s3-ap-southeast-2-amazonaws.com',
@@ -38,14 +41,14 @@ def retrieve(username, stockname: str):
                 },
                 'stock_name': stockname,
                 'events': content
-            }
+            }), 200
         else:
             content = retrievalInterface.pull(AWS_S3_BUCKET_NAME, f"{filenameS3}")
             # need to format Rakshil's S3 content format into DynamoDB content
             retrievalInterface.pushToDynamo(stockname, content, username, DYNAMO_DB_NAME)
             found, content, index = retrievalInterface.getFileFromDynamo(stockname, username, DYNAMO_DB_NAME)
 
-            return {
+            return json.dumps({
                 'data_source': "yahoo_finance",
                 'dataset_type': 'Daily stock data',
                 'dataset_id': 'http://seng3011-omega-25t1-testing-bucket.s3-ap-southeast-2-amazonaws.com',
@@ -55,8 +58,14 @@ def retrieve(username, stockname: str):
                 },
                 'stock_name': stockname,
                 'events': content
-            }
+            }), 200
+    except ClientError as e:
 
+        if e.response["Error"]["Code"] == "NoSuchKey":
+            return json.dumps({"StockNotFound": f"It appears that you have do not have access to stock {stockname}." \
+                "Ensure you have collected the stock before attempting retrieval"}), 401
+        else:
+            return json.dumps({"AWSError": "Something unexpected went wrong; double check documentation"}), 500
     except Exception as e:
         return f"(RetrievalMicroservice.retrieve) Exception: {e}\n"
 
