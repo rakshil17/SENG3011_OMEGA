@@ -14,7 +14,7 @@ class TestPullFromS3:
     # successfully pull a file
     def test_pull_file(self, s3_mock):
         bucket_name = 'test-bucket'
-        fileName = 'test-file.txt'
+        fileName = 'user1#apple_stock_data.csv'
         file_content = 'Hello, Moto!'
 
         # Call the function to download and read the file.

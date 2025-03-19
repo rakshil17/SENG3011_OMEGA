@@ -5,7 +5,7 @@ from moto import mock_aws
 @pytest.fixture(scope="function")
 def s3_mock():
     bucket_name = 'test-bucket'
-    fileName = 'test-file.txt'
+    fileName = 'user1#apple_stock_data.csv'
     file_content = 'Hello, Moto!'
     
     with mock_aws():

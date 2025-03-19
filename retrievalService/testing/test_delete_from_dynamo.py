@@ -9,10 +9,12 @@ class TestDeleteFromDynamo:
 
     @mock_aws
     def test_delete_file(self, test_table):
-        fileName = 'test-file.txt'
+        fileName = 'user1#apple_stock_data.csv'
         username = 'user1'
         tableName = 'test-table'
-        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
+        with open("fileContentExample.csv", "r") as f:
+            fileContent = f.read()
+
 
         retrievalInterface = RetrievalInterface()
 
@@ -38,10 +40,12 @@ class TestDeleteFromDynamo:
 
     @mock_aws
     def test_delete_non_existent_file(self, test_table):
-        fileName = 'test-file.txt'
+        fileName = 'user1#apple_stock_data.csv'
         username = 'user1'
         tableName = 'test-table'
-        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
+        with open("fileContentExample.csv", "r") as f:
+            fileContent = f.read()
+
 
         retrievalInterface = RetrievalInterface()
 
@@ -58,10 +62,12 @@ class TestDeleteFromDynamo:
 
     @mock_aws
     def test_delete_from_non_existent_table(self, test_table):
-        fileName = 'test-file.txt'
+        fileName = 'user1#apple_stock_data.csv'
         username = 'user1'
         tableName = 'test-table'
-        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
+        with open("fileContentExample.csv", "r") as f:
+            fileContent = f.read()
+
 
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
@@ -72,11 +78,13 @@ class TestDeleteFromDynamo:
 
     @mock_aws
     def test_delete_user_not_file_owner(self, test_table_two_users):
-        fileName = 'test-file.txt'
+        fileName = 'user1#apple_stock_data.csv'
         username = 'user1'
         username2 = 'user2'
         tableName = 'test-table'
-        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
+        with open("fileContentExample.csv", "r") as f:
+            fileContent = f.read()
+
 
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
@@ -86,10 +94,12 @@ class TestDeleteFromDynamo:
 
     @mock_aws
     def test_invalid_double_delete(self, test_table):
-        fileName = 'test-file.txt'
+        fileName = 'user1#apple_stock_data.csv'
         username = 'user1'
         tableName = 'test-table'
-        fileContent = '''2024-12-3#3\n2024-12-4#4\n2024-12-5#8\n2024-12-6#3\n2024-12-7#4\n2024-12-8#8\n2024-12-9#3\n2024-12-10#4\n2024-12-11#8\n2024-12-12#3\n2024-12-13#4\n2024-12-14#8\n'''
+        with open("fileContentExample.csv", "r") as f:
+            fileContent = f.read()
+
 
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
