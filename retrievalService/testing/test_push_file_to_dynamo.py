@@ -1,6 +1,7 @@
 # https://pypi.org/project/moto/
 # a mock for s3 to let me check that I am using boto3 correctly
 import pytest
+import os
 from moto import mock_aws
 from botocore.exceptions import ClientError
 
@@ -12,53 +13,71 @@ from ..implementation.RetrievalInterface import RetrievalInterface
 @pytest.mark.filterwarnings(r"ignore:datetime.datetime.utcnow\(\) is deprecated:DeprecationWarning")
 class TestPushToDynamo:
     @mock_aws
-    def test_push_file(self, test_table):
-        fileName = 'test-file.txt'
-        fileContent = 'some nice file content'
-        username = 'user1'
-        tableName = 'test-table'
+    def test_push_file(self, test_table, rootdir):
+        fileName = os.path.join(rootdir, "user1#apple_stock_data.csv")
+        stockName = "apple"
+        with open(fileName, "r") as f:
+            fileContent = f.read()
+
+        username = "user1"
+        tableName = "seng3011-test-dynamodb"
 
         retrievalInterface = RetrievalInterface()
-        retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
+        retrievalInterface.pushToDynamo(stockName, fileContent, username, tableName)
 
-        retrievedFiles = test_table.get_item(Key={'username': username}).get('Item').get('retrievedFiles')
+        retrievedFiles = (
+            test_table.get_item(TableName=tableName, Key={"username": {"S": username}})
+            .get("Item")
+            .get("retrievedFiles")
+            .get("L")
+        )
+
         assert len(retrievedFiles) == 1
-        assert retrievedFiles[0].get('filename') == fileName
-        assert retrievedFiles[0].get('content') == fileContent
+
+        assert retrievedFiles[0].get("M").get("filename").get("S") == stockName
 
     @mock_aws
-    def test_table_not_exist(self, test_table):
-        fileName = 'test-file.txt'
-        fileContent = 'some nice file content'
-        username = 'user1'
+    def test_table_not_exist(self, test_table, rootdir):
+        fileName = os.path.join(rootdir, "user1#apple_stock_data.csv")
+        stockName = "apple"
+        with open(fileName, "r") as f:
+            fileContent = f.read()
+
+        username = "user1"
 
         retrievalInterface = RetrievalInterface()
         with pytest.raises(ClientError) as errorInfo:
-            retrievalInterface.pushToDynamo(fileName, fileContent, username, 'fakeTableName')
+            retrievalInterface.pushToDynamo(stockName, fileContent, username, "fakeTableName")
         assert errorInfo.value.response["Error"]["Code"] == "ResourceNotFoundException"
 
     @mock_aws
-    def test_user_does_not_exist(self, test_table):
-        fileName = 'test-file.txt'
-        fileContent = 'some nice file content'
-        tableName = 'test-table'
+    def test_user_does_not_exist(self, test_table, rootdir):
+        fileName = os.path.join(rootdir, "user1#apple_stock_data.csv")
+        stockName = "apple"
+        with open(fileName, "r") as f:
+            fileContent = f.read()
+
+        tableName = "seng3011-test-dynamodb"
 
         retrievalInterface = RetrievalInterface()
         # with pytest.raises(botocore.errorfactory.ResourceNotFoundException):
         with pytest.raises(Exception):
-            retrievalInterface.pushToDynamo(fileName, fileContent, 'fake-user', tableName)
+            retrievalInterface.pushToDynamo(stockName, fileContent, "fake-user", tableName)
 
     @mock_aws
-    def test_user_double_pushes(self, test_table):
-        fileName = 'test-file.txt'
-        fileContent = 'some nice file content'
-        tableName = 'test-table'
-        username = 'user1'
+    def test_user_double_pushes(self, test_table, rootdir):
+        fileName = os.path.join(rootdir, "user1#apple_stock_data.csv")
+        stockName = "apple"
+        with open(fileName, "r") as f:
+            fileContent = f.read()
+
+        tableName = "seng3011-test-dynamodb"
+        username = "user1"
 
         retrievalInterface = RetrievalInterface()
 
-        response = retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
+        response = retrievalInterface.pushToDynamo(stockName, fileContent, username, tableName)
         assert response is True
 
         with pytest.raises(Exception):
-            retrievalInterface.pushToDynamo(fileName, fileContent, username, tableName)
+            retrievalInterface.pushToDynamo(stockName, fileContent, username, tableName)
