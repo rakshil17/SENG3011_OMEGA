@@ -1,6 +1,7 @@
 from flask import Flask, request
 from RetrievalInterface import RetrievalInterface
 import sys
+from datetime import datetime
 
 app =  Flask(__name__)
 
@@ -27,17 +28,32 @@ def retrieve(username, stockname: str):
 
         if found:
             return {
+                'data_source': "yahoo_finance",
+                'dataset_type': 'Daily stock data',
+                'dataset_id': 'http://seng3011-omega-25t1-testing-bucket.s3-ap-southeast-2-amazonaws.com',
+                'time_object': {
+                    'timestamp': f'{datetime.now()}',
+                    'timezone': 'GMT+11' 
+                },
                 'stock_name': stockname,
-                'data': content
+                'events': content
             }
         else:
             content = retrievalInterface.pull(AWS_S3_BUCKET_NAME, f"{filenameS3}")
             # need to format Rakshil's S3 content format into DynamoDB content
             retrievalInterface.pushToDynamo(stockname, content, username, DYNAMO_DB_NAME)
             found, content, index = retrievalInterface.getFileFromDynamo(stockname, username, DYNAMO_DB_NAME)
+
             return {
-                'stock_name': stockname,     # will change depending on what Rakshil did
-                'data': content
+                'data_source': "yahoo_finance",
+                'dataset_type': 'Daily stock data',
+                'dataset_id': 'http://seng3011-omega-25t1-testing-bucket.s3-ap-southeast-2-amazonaws.com',
+                'time_object': {
+                    'timestamp': f'{datetime.now()}',
+                    'timezone': 'GMT+11' 
+                },
+                'stock_name': stockname,
+                'events': content
             }
 
     except Exception as e:

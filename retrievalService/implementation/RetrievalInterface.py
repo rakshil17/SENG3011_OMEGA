@@ -109,9 +109,22 @@ class RetrievalInterface:
             closeVal = line.get('Close')
 
             contentList.append({
-                'M': {
-                    'Close': {'S': closeVal},
-                    'Date': {'S': date}
+                "M": {
+                    "attribute": {
+                        "M": {
+                            "close": {"S": closeVal},
+                            "stock_name": {"S": fileName}
+                        }
+                    },
+                    "event-type": {"S": "stock-ohlc"},
+                    "time_object": {
+                        "M": {
+                            "duration": {"N": "0"},
+                            "duration-unit": {"S": "days"},
+                            "time-stamp": {"S": date},
+                            "time-zone": {"S": "GMT+11"}
+                        }
+                    }
                 }
             })
 
@@ -202,7 +215,7 @@ class RetrievalInterface:
                 Error: {e}\n''')
             raise
 
-if __name__ == "__main__":
-    DYNAMO_DB_NAME = "seng3011-test-dynamodb"
-    ri = RetrievalInterface()
-    ri.listUserFiles("user1", DYNAMO_DB_NAME)
+# if __name__ == "__main__":
+#     DYNAMO_DB_NAME = "seng3011-test-dynamodb"
+#     ri = RetrievalInterface()
+#     ri.pushToDynamo()
