@@ -3,7 +3,7 @@
 import pytest
 import os
 from moto import mock_aws
-import boto3
+# import boto3
 from ..implementation.RetrievalInterface import RetrievalInterface
 
 
@@ -14,9 +14,9 @@ class TestPullFromS3:
     @mock_aws
     # successfully pull a file
     def test_pull_file(self, s3_mock, rootdir):
-        bucket_name = 'seng3011-omega-25t1-testing-bucket'
-        s3FileName = 'user1#apple_stock_data.csv'
-        fileName = os.path.join(rootdir, 'user1#apple_stock_data.csv')
+        bucket_name = "seng3011-omega-25t1-testing-bucket"
+        s3FileName = "user1#apple_stock_data.csv"
+        fileName = os.path.join(rootdir, "user1#apple_stock_data.csv")
         with open(fileName) as f:
             fileContent = f.read()
 
@@ -30,8 +30,8 @@ class TestPullFromS3:
     @mock_aws
     # try to pull a file that does not exist
     def test_pull_nonexistent_file(self, s3_mock):
-        bucket_name = 'seng3011-omega-25t1-testing-bucket'
-        
+        # bucket_name = "seng3011-omega-25t1-testing-bucket"
+
         retrievalInterface = RetrievalInterface()
         with pytest.raises(s3_mock.exceptions.NoSuchKey):
             retrievalInterface.pull("seng3011-omega-25t1-testing-bucket", "non-existent-file")
@@ -41,5 +41,4 @@ class TestPullFromS3:
         retrievalInterface = RetrievalInterface()
 
         with pytest.raises(s3_mock.exceptions.NoSuchBucket):
-            retrievalInterface.pull('fake-bucket', "non-existent-file")
-
+            retrievalInterface.pull("fake-bucket", "non-existent-file")
