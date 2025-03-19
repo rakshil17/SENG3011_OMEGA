@@ -38,5 +38,5 @@ class TestRetrieveRoute:
         stockName = "apple"
 
         res = client.get(f"/v1/retrieve/fakeUser/{stockName}/")
-        assert res.status_code == 500
-        assert json.loads(res.data)["AWSError"] is not None
+        assert res.status_code == 401
+        assert json.loads(res.data)["UserNotFound"] is not None

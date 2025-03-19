@@ -95,9 +95,11 @@ def retrieve(username, stockname: str):
                 401,
             )
         else:
-            return json.dumps({"AWSError": "Something unexpected went wrong; double check documentation"}), 500
+            return json.dumps({"InternalError": "Something unexpected went wrong; please report"}), 500
+    except UserNotFound:
+        return json.dumps({"UserNotFound": "Username not found; ensure you have reigstered"}), 401
     except Exception:
-        return json.dumps({"AWSError": "Something unexpected went wrong; double check documentation"}), 500
+        return json.dumps({"InternalError": "Something unexpected went wrong; please report"}), 500
 
 
 @app.route("/v1/delete/", methods=["DELETE"])
