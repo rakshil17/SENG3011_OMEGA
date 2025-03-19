@@ -30,7 +30,7 @@ def register():
     except ClientError:
         return (
             json.dumps(
-                {"Error": "(RetrievalMicroservice.retrieve) Exception: Something has gone wrong on our end. Please report"}
+                {"InternalError": "(RetrievalMicroservice.retrieve) Exception: Something has gone wrong on our end. Please report"}
             ),
             500,
         )
@@ -117,7 +117,7 @@ def delete():
     except UserNotFound:
         return json.dumps({"UserNotFound": f"No user with username {username} exists, ensure you have registered"}), 401
     except Exception as e:
-        return f"(RetrievalMicroservice.delete) Exception: {e}"
+        return json.dumps({"InternalError": "Something has gone wrong on our end, please report"}), 500
 
 
 @app.route("/v1/list/<username>/", methods=["GET"])
@@ -128,7 +128,7 @@ def getAll(username):
     except UserNotFound:
         return json.dumps({"UserNotFound": "User does not appear to exist, ensure you have registered"}), 401
     except Exception as e:
-        return f"(RetrievalMicroservice.delete) Exception: {e}"
+        return json.dumps({"InternalError": "Something has gone wrong on our end, please report"}), 500
 
 
 if __name__ == "__main__":
