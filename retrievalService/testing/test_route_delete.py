@@ -9,8 +9,8 @@ import json
 class TestDeleteRoute:
     @mock_aws
     def test_delete(self, rootdir, client, s3_mock, test_table):
-        stockName = 'apple'
-        username = 'user1'
+        stockName = "apple"
+        username = "user1"
 
         client.get(f"/v1/retrieve/{username}/{stockName}/")
         res = client.delete("/v1/delete/", json={"username": username, "filename": stockName})
@@ -19,15 +19,15 @@ class TestDeleteRoute:
 
         res = client.delete("/v1/delete/", json={"username": username, "filename": stockName})
         assert res.status_code == 400
-        assert json.loads(res.data)['FileNotFound'] is not None
+        assert json.loads(res.data)["FileNotFound"] is not None
 
     @mock_aws
     def test_invalid_username(self, rootdir, client, s3_mock, test_table):
-        stockName = 'apple'
-        username = 'user1'
+        stockName = "apple"
+        username = "user1"
 
         client.get(f"/v1/retrieve/{username}/{stockName}/")
-        res = client.delete("/v1/delete/", json={"username": 'wrong-user', "filename": stockName})
+        res = client.delete("/v1/delete/", json={"username": "wrong-user", "filename": stockName})
 
         assert res.status_code == 401
-        assert json.loads(res.data)['UserNotFound'] is not None
+        assert json.loads(res.data)["UserNotFound"] is not None

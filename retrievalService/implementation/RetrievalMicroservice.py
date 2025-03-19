@@ -1,6 +1,7 @@
 from flask import Flask, request
 from botocore.exceptions import ClientError
 from RetrievalInterface import RetrievalInterface
+
 # import sys
 from datetime import datetime
 from pytz import timezone
@@ -9,6 +10,7 @@ import json
 
 from exceptions.UserNotFound import UserNotFound
 from exceptions.UserAlreadyExists import UserAlreadyExists
+
 # from exceptions.UserHasFile import UserHasFile
 
 app = Flask(__name__)
@@ -29,9 +31,7 @@ def register():
         return json.dumps({"UserTakenError": "Username taken"}), 401
     except ClientError:
         return (
-            json.dumps(
-                {"InternalError": "(RetrievalMicroservice.retrieve) Exception: Something has gone wrong on our end. Please report"}
-            ),
+            json.dumps({"InternalError": "Something has gone wrong on our end. Please report"}),
             500,
         )
 
@@ -116,7 +116,7 @@ def delete():
         return json.dumps({"FileNotFound": f"No File for stock {filename} exists for deletion"}), 400
     except UserNotFound:
         return json.dumps({"UserNotFound": f"No user with username {username} exists, ensure you have registered"}), 401
-    except Exception as e:
+    except Exception:
         return json.dumps({"InternalError": "Something has gone wrong on our end, please report"}), 500
 
 
@@ -127,7 +127,7 @@ def getAll(username):
         return json.dumps({"Success": retrievalInterface.listUserFiles(username, DYNAMO_DB_NAME)})
     except UserNotFound:
         return json.dumps({"UserNotFound": "User does not appear to exist, ensure you have registered"}), 401
-    except Exception as e:
+    except Exception:
         return json.dumps({"InternalError": "Something has gone wrong on our end, please report"}), 500
 
 

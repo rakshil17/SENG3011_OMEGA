@@ -3,9 +3,9 @@ import boto3
 from moto import mock_aws
 import os
 import sys
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../implementation")))
 from ..implementation.RetrievalMicroservice import app as flask_app
-
 
 
 @pytest.fixture
