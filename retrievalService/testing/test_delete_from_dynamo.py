@@ -13,7 +13,7 @@ class TestDeleteFromDynamo:
         fileName = os.path.join(rootdir, 'user1#apple_stock_data.csv')
         stockName = 'apple'
         username = 'user1'
-        tableName = 'test-table'
+        tableName = 'seng3011-test-dynamodb'
         with open(fileName, "r") as f:
             fileContent = f.read()
 
@@ -45,7 +45,7 @@ class TestDeleteFromDynamo:
         fileName = os.path.join(rootdir, 'user1#apple_stock_data.csv')
         stockName = 'apple'
         username = 'user1'
-        tableName = 'test-table'
+        tableName = 'seng3011-test-dynamodb'
         with open(fileName, "r") as f:
             fileContent = f.read()
 
@@ -68,7 +68,7 @@ class TestDeleteFromDynamo:
         fileName = os.path.join(rootdir, 'user1#apple_stock_data.csv')
         stockName = 'apple'
         username = 'user1'
-        tableName = 'test-table'
+        tableName = 'seng3011-test-dynamodb'
         with open(fileName, "r") as f:
             fileContent = f.read()
 
@@ -86,7 +86,7 @@ class TestDeleteFromDynamo:
         stockName = 'apple'
         username = 'user1'
         username2 = 'user2'
-        tableName = 'test-table'
+        tableName = 'seng3011-test-dynamodb'
         with open(fileName, "r") as f:
             fileContent = f.read()
 
@@ -102,7 +102,7 @@ class TestDeleteFromDynamo:
         fileName = os.path.join(rootdir, 'user1#apple_stock_data.csv')
         stockName = 'apple'
         username = 'user1'
-        tableName = 'test-table'
+        tableName = 'seng3011-test-dynamodb'
         with open(fileName, "r") as f:
             fileContent = f.read()
 

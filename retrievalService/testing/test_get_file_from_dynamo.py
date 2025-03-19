@@ -17,7 +17,7 @@ class TestGetFileFromDynamo:
             fileContent = f.read()
 
         username = 'user1'
-        tableName = 'test-table'
+        tableName = 'seng3011-test-dynamodb'
 
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(stockName, fileContent, username, tableName)
@@ -36,7 +36,7 @@ class TestGetFileFromDynamo:
 
         username = 'user1'
         username2 = 'user2'
-        tableName = 'test-table'
+        tableName = 'seng3011-test-dynamodb'
 
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(stockName, fileContent, username, tableName)
@@ -53,7 +53,7 @@ class TestGetFileFromDynamo:
             fileContent = f.read()
 
         username = 'user1'
-        tableName = 'test-table'
+        tableName = 'seng3011-test-dynamodb'
 
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(stockName, fileContent, username, tableName)
@@ -70,7 +70,7 @@ class TestGetFileFromDynamo:
             fileContent = f.read()
 
         username = 'user1'
-        tableName = 'test-table'
+        tableName = 'seng3011-test-dynamodb'
 
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(stockName, fileContent, username, tableName)

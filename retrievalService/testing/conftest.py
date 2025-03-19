@@ -1,7 +1,11 @@
 import pytest
 import boto3
-import os
 from moto import mock_aws
+
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../implementation')))
+from ..implementation.RetrievalMicroservice import app as flask_app
 
 @pytest.fixture
 def rootdir():
@@ -9,10 +13,11 @@ def rootdir():
 
 
 @pytest.fixture(scope="function")
-def s3_mock():
-    bucket_name = 'test-bucket'
-    fileName = 'user1#apple_stock_data.csv'
-    file_content = 'Hello, Moto!'
+def s3_mock(rootdir):
+    bucket_name = 'seng3011-omega-25t1-testing-bucket'
+    fileName = os.path.join(rootdir, 'user1#apple_stock_data.csv')
+    with open(fileName) as f:
+        fileContent = f.read()
     
     with mock_aws():
         # Create a mock S3 bucket and upload a test file.
@@ -20,7 +25,7 @@ def s3_mock():
         s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={
             'LocationConstraint': 'ap-southeast-2'
         })
-        s3.put_object(Bucket=bucket_name, Key=fileName, Body=file_content.encode('utf-8'))
+        s3.put_object(Bucket=bucket_name, Key='user1#apple_stock_data.csv', Body=fileContent.encode('utf-8'))
 
         yield s3
 
@@ -40,7 +45,7 @@ def test_table(dynamodb_mock):
     username = 'user1'
 
     with mock_aws():
-        tableName = 'test-table'
+        tableName = 'seng3011-test-dynamodb'
 
         dynamodb_mock.create_table(
             TableName=tableName,
@@ -77,7 +82,7 @@ def test_table_two_users(dynamodb_mock):
     username2 = 'user2'
 
     with mock_aws():
-        tableName = 'test-table'
+        tableName = 'seng3011-test-dynamodb'
 
         dynamodb_mock.create_table(
             TableName=tableName,
@@ -113,3 +118,12 @@ def test_table_two_users(dynamodb_mock):
 
         yield dynamodb_mock
         dynamodb_mock.delete_table(TableName=tableName)
+
+
+@pytest.fixture
+def app():
+    yield flask_app
+
+@pytest.fixture
+def client(app):
+    return app.test_client()

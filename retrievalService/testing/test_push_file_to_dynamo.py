@@ -20,7 +20,7 @@ class TestPushToDynamo:
             fileContent = f.read()
 
         username = 'user1'
-        tableName = 'test-table'
+        tableName = 'seng3011-test-dynamodb'
 
         retrievalInterface = RetrievalInterface()
         retrievalInterface.pushToDynamo(stockName, fileContent, username, tableName)
@@ -56,7 +56,7 @@ class TestPushToDynamo:
         with open(fileName, "r") as f:
             fileContent = f.read()
 
-        tableName = 'test-table'
+        tableName = 'seng3011-test-dynamodb'
 
         retrievalInterface = RetrievalInterface()
         # with pytest.raises(botocore.errorfactory.ResourceNotFoundException):
@@ -70,7 +70,7 @@ class TestPushToDynamo:
         with open(fileName, "r") as f:
             fileContent = f.read()
 
-        tableName = 'test-table'
+        tableName = 'seng3011-test-dynamodb'
         username = 'user1'
 
         retrievalInterface = RetrievalInterface()

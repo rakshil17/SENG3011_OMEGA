@@ -16,7 +16,7 @@ class TestDeleteFromS3:
     # successfully delete a file
     @mock_aws
     def test_delete_file(self, rootdir):
-        bucketName = 'test-bucket'
+        bucketName = 'seng3011-omega-25t1-testing-bucket'
         fileName = os.path.join(rootdir, 'user1#apple_stock_data.csv')
         s3FileName = 'user1#apple_stock_data.csv'
         stockName = 'apple'
@@ -42,7 +42,7 @@ class TestDeleteFromS3:
 
     @mock_aws
     def test_delete_non_existent_file(self, rootdir):
-        bucketName = 'test-bucket'
+        bucketName = 'seng3011-omega-25t1-testing-bucket'
         fileName = os.path.join(rootdir, 'user1#apple_stock_data.csv')
         s3FileName = 'user1#apple_stock_data.csv'
         stockName = 'apple'
@@ -65,7 +65,7 @@ class TestDeleteFromS3:
 
     @mock_aws
     def test_delete_non_existent_bucket(self, rootdir):
-        bucketName = 'test-bucket'
+        bucketName = 'seng3011-omega-25t1-testing-bucket'
         fileName = os.path.join(rootdir, 'user1#apple_stock_data.csv')
         s3FileName = 'user1#apple_stock_data.csv'
         stockName = 'apple'
@@ -85,7 +85,7 @@ class TestDeleteFromS3:
 
     @mock_aws
     def test_double_delete(self, rootdir):
-        bucketName = 'test-bucket'
+        bucketName = 'seng3011-omega-25t1-testing-bucket'
         fileName = os.path.join(rootdir, 'user1#apple_stock_data.csv')
         s3FileName = 'user1#apple_stock_data.csv'
         stockName = 'apple'
