@@ -1,6 +1,12 @@
 import pytest
 import boto3
+import os
 from moto import mock_aws
+
+@pytest.fixture
+def rootdir():
+    return os.path.dirname(os.path.abspath(__file__))
+
 
 @pytest.fixture(scope="function")
 def s3_mock():
