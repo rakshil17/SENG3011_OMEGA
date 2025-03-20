@@ -23,7 +23,7 @@ class TestCheckStock:
         mock_s3 = mocker.patch("boto3.client")  # Mock S3 client
         mock_s3.return_value.head_object.return_value = {}  # Simulate file exists
 
-        response = client.get("/check_stock?company=apple&name=john")
+        response = client.get("/check_stock?company=apple&name=johndenver")
         data = json.loads(response.data)
 
         assert response.status_code == 200
@@ -67,7 +67,7 @@ class TestStockInfo:
         mocker.patch("dataCol.search_ticker", return_value="AAPL")  
         mocker.patch("dataCol.get_stock_data", return_value=("apple_stock_data.csv", [{"Date": "2024-03-01", "Close": 150.5}]))  
 
-        response = client.get("/stockInfo?company=apple&name=john")
+        response = client.get("/stockInfo?company=apple&name=johndenver")
         data = json.loads(response.data)
 
         assert response.status_code == 200
