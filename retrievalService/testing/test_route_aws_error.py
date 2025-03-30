@@ -33,7 +33,7 @@ class TestInternalError:
         username = "user1"
         stockName = "apple"
 
-        res = client.delete("/v1/delete/", json={"username": username, "filename": stockName})
+        res = client.delete(f"/v1/delete/{username}/{stockName}/")
         print(json.loads(res.data))
         assert res.status_code == 500
 
