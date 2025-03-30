@@ -37,7 +37,7 @@ def register():
 
 
 @app.route("/v1/retrieve/<username>/<stockname>/", methods=["GET"])
-def retrieve(username, stockname: str):
+def retrieve(username: str, stockname: str):
     retrievalInterface = RetrievalInterface()
     filenameS3 = f"{username}#{stockname}_stock_data.csv"  # need to think about Rakshil's file formatting here
     try:
@@ -65,7 +65,6 @@ def retrieve(username, stockname: str):
             # need to format Rakshil's S3 content format into DynamoDB content
             retrievalInterface.pushToDynamo(stockname, content, username, DYNAMO_DB_NAME)
             found, content, index = retrievalInterface.getFileFromDynamo(stockname, username, DYNAMO_DB_NAME)
-
             return (
                 json.dumps(
                     {
@@ -95,17 +94,15 @@ def retrieve(username, stockname: str):
                 401,
             )
         else:
-            return json.dumps({"InternalError": "Something unexpected went wrong; please report"}), 500
+            return json.dumps({"InternalError": f"Something unbelievable went wrong; please report - error = {e}"}), 500
     except UserNotFound:
         return json.dumps({"UserNotFound": "Username not found; ensure you have reigstered"}), 401
-    except Exception:
-        return json.dumps({"InternalError": "Something unexpected went wrong; please report"}), 500
+    except Exception as e:
+        return json.dumps({"InternalError": f"Something went wrong; please report - error = {e}"}), 500
 
 
-@app.route("/v1/delete/", methods=["DELETE"])
-def delete():
-    filename = request.get_json()["filename"]
-    username = request.get_json()["username"]
+@app.route("/v1/delete/<username>/<filename>/", methods=["DELETE"])
+def delete(username: str, filename: str):
 
     retrievalInterface = RetrievalInterface()
     try:
@@ -116,12 +113,12 @@ def delete():
         return json.dumps({"FileNotFound": f"No File for stock {filename} exists for deletion"}), 400
     except UserNotFound:
         return json.dumps({"UserNotFound": f"No user with username {username} exists, ensure you have registered"}), 401
-    except Exception:
-        return json.dumps({"InternalError": "Something has gone wrong on our end, please report"}), 500
+    except Exception as e:
+        return json.dumps({"InternalError": f"Something has gone wrong on our end, please report; e = {e}"}), 500
 
 
 @app.route("/v1/list/<username>/", methods=["GET"])
-def getAll(username):
+def getAll(username: str):
     retrievalInterface = RetrievalInterface()
     try:
         return json.dumps({"Success": retrievalInterface.listUserFiles(username, DYNAMO_DB_NAME)})
