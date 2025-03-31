@@ -276,8 +276,3 @@ class RetrievalInterface:
         except Exception as e:
             sys.stderr.write(f"(RetrievalInterface.pushToDynamo) General Exception {e}\n")
             raise
-
-# if __name__ == "__main__":
-#     DYNAMO_DB_NAME = "seng3011-test-dynamodb"
-#     ri = RetrievalInterface()
-#     ri.pushToDynamo()
