@@ -36,7 +36,7 @@ def adageFormatter(s3BucketName: str, stockName: str, content: str, data_type: s
     datasetType = getKeyToDatasetTypeMap().get(data_type, None)
 
     if dataSrc is None or datasetType is None:
-        raise InvalidDataKey(f"data type {data_type} is not valid - valid types are {getKeyToTableMap().keys()}")
+        raise InvalidDataKey(f"data type {data_type} is not valid - valid types are {getKeyToTableNameMap().keys()}")
 
 
     return {
