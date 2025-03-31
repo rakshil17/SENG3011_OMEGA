@@ -39,6 +39,8 @@ def register():
 
 
 @app.route("/v1/retrieve/<username>/<stockname>/", methods=["GET"])
+'''Route makes the assumption that you are looking for finance data only. Use V2 of this
+route if you want to be able to specify what data type you are looking to retrieve'''
 def retrieve(username: str, stockname: str):
     retrievalInterface = RetrievalInterface()
     filenameS3 = f"{username}#{stockname}_stock_data.csv"  # need to think about Rakshil's file formatting here
