@@ -2,6 +2,8 @@ from flask import Flask, request
 from botocore.exceptions import ClientError
 from RetrievalInterface import RetrievalInterface
 
+from RetrievalMicroserviceHelpers import getKeyToTableNameMap, getTableNameFromKey, adageFormatter
+
 # import sys
 from datetime import datetime
 from pytz import timezone
@@ -127,6 +129,56 @@ def getAll(username: str):
     except Exception:
         return json.dumps({"InternalError": "Something has gone wrong on our end, please report"}), 500
 
+
+@app.route("/v2/retrieve/<username>/<data_type>/<stockname>/")
+def retrieveV2(username, data_type, stockname):
+    retrievalInterface = RetrievalInterface()
+    s3BucketName = getTableNameFromKey(data_type)
+
+    filenameS3 = f"{username}#{stockname}_stock_data.csv" # need to think how this might change depending on the bucket that i am reaching into (collab with Rakshil here)
+    filenameDynamo = f"{data_type}_{stockname}"
+    try:
+        found, content, index = retrievalInterface.getFileFromDynamo(filenameDynamo, username, DYNAMO_DB_NAME)
+
+        if found:
+            return (
+                json.dumps(
+                    adageFormatter(s3BucketName, stockname, content, data_type)
+                ),
+                200,
+            )
+        else:
+            print(f"Going to try pull from s3 bucekt {s3BucketName}")
+            content = retrievalInterface.pull(s3BucketName, f"{filenameS3}")
+            print(f"Got the content - content = {content}")
+            retrievalInterface.pushToDynamoV2(data_type, stockname, content, username, DYNAMO_DB_NAME)
+
+            found, content, index = retrievalInterface.getFileFromDynamo(stockname, username, DYNAMO_DB_NAME)
+            return (
+                json.dumps(
+                    adageFormatter(s3BucketName, stockname, content, data_type)
+
+                ),
+                200,
+            )
+    except ClientError as e:
+
+        if e.response["Error"]["Code"] == "NoSuchKey":
+            return (
+                json.dumps(
+                    {
+                        "StockNotFound": f"It appears that you have do not have access to stock {stockname}."
+                        "Ensure you have collected the stock before attempting retrieval"
+                    }
+                ),
+                401,
+            )
+        else:
+            return json.dumps({"InternalError": f"Something unbelievable went wrong; please report - error = {e}"}), 500
+    except UserNotFound:
+        return json.dumps({"UserNotFound": "Username not found; ensure you have reigstered"}), 401
+    except Exception as e:
+        return json.dumps({"InternalError": f"Something went wrong; please report - error = {e}"}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)
