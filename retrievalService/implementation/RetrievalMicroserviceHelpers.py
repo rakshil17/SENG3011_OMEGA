@@ -26,7 +26,7 @@ def getTableNameFromKey(key: str):
 
     tableName = keyToTableNameMap.get(key, None)
     if tableName is None:
-        raise InvaldDataKey(f"data key {key} is not valid - valid keys are {keyToTableNameMap.keys()}")
+        raise InvalidDataKey(f"data type {key} is not valid - valid types are {keyToTableNameMap.keys()}")
 
     return tableName
 
@@ -36,7 +36,7 @@ def adageFormatter(s3BucketName: str, stockName: str, content: str, data_type: s
     datasetType = getKeyToDatasetTypeMap().get(data_type, None)
 
     if dataSrc is None or datasetType is None:
-        raise InvaldDataKey(f"data key {key} is not valid - valid keys are {getKeyToTableMap().keys()}")
+        raise InvalidDataKey(f"data type {data_type} is not valid - valid types are {getKeyToTableMap().keys()}")
 
 
     return {
