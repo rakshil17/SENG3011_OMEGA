@@ -2,7 +2,7 @@ from flask import Flask, request
 from botocore.exceptions import ClientError
 from RetrievalInterface import RetrievalInterface
 
-from RetrievalMicroserviceHelpers import getKeyToTableNameMap, getTableNameFromKey, adageFormatter
+from RetrievalMicroserviceHelpers import getTableNameFromKey, adageFormatter
 
 # import sys
 from datetime import datetime
@@ -93,7 +93,7 @@ def retrieve(username: str, stockname: str):
                         "Ensure you have collected the stock before attempting retrieval"
                     }
                 ),
-                401,
+                400,
             )
         else:
             return json.dumps({"InternalError": f"Something unbelievable went wrong; please report - error = {e}"}), 500
@@ -135,7 +135,8 @@ def retrieveV2(username, data_type, stockname):
     retrievalInterface = RetrievalInterface()
     s3BucketName = getTableNameFromKey(data_type)
 
-    filenameS3 = f"{username}#{stockname}_stock_data.csv" # need to think how this might change depending on the bucket that i am reaching into (collab with Rakshil here)
+    # need to think how this might change depending on the bucket that i am reaching into (collab with Rakshil here)
+    filenameS3 = f"{username}#{stockname}_stock_data.csv"
     filenameDynamo = f"{data_type}_{stockname}"
     try:
         found, content, index = retrievalInterface.getFileFromDynamo(filenameDynamo, username, DYNAMO_DB_NAME)
@@ -171,7 +172,7 @@ def retrieveV2(username, data_type, stockname):
                         "Ensure you have collected the stock before attempting retrieval"
                     }
                 ),
-                401,
+                400,
             )
         else:
             return json.dumps({"InternalError": f"Something unbelievable went wrong; please report - error = {e}"}), 500
@@ -179,6 +180,7 @@ def retrieveV2(username, data_type, stockname):
         return json.dumps({"UserNotFound": "Username not found; ensure you have reigstered"}), 401
     except Exception as e:
         return json.dumps({"InternalError": f"Something went wrong; please report - error = {e}"}), 500
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)

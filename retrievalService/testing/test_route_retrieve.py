@@ -30,7 +30,7 @@ class TestRetrieveRoute:
 
         res = client.get(f"/v1/retrieve/{username}/fakestock/")
         pprint(res.data)
-        assert res.status_code == 401
+        assert res.status_code == 400
         assert json.loads(res.data)["StockNotFound"] is not None
 
     @mock_aws
