@@ -93,7 +93,7 @@ def retrieve(username: str, stockname: str):
                         "Ensure you have collected the stock before attempting retrieval"
                     }
                 ),
-                401,
+                400,
             )
         else:
             return json.dumps({"InternalError": f"Something unbelievable went wrong; please report - error = {e}"}), 500
@@ -171,7 +171,7 @@ def retrieveV2(username, data_type, stockname):
                         "Ensure you have collected the stock before attempting retrieval"
                     }
                 ),
-                401,
+                400,
             )
         else:
             return json.dumps({"InternalError": f"Something unbelievable went wrong; please report - error = {e}"}), 500
