@@ -12,6 +12,8 @@ import json
 
 from exceptions.UserNotFound import UserNotFound
 from exceptions.UserAlreadyExists import UserAlreadyExists
+from exceptions.InvalidDataKey import InvalidDataKey
+
 
 # from exceptions.UserHasFile import UserHasFile
 
@@ -98,7 +100,7 @@ def retrieve(username: str, stockname: str):
         else:
             return json.dumps({"InternalError": f"Something unbelievable went wrong; please report - error = {e}"}), 500
     except UserNotFound:
-        return json.dumps({"UserNotFound": "Username not found; ensure you have reigstered"}), 401
+        return json.dumps({"UserNotFound": "Username not found; ensure you have registered"}), 401
     except Exception as e:
         return json.dumps({"InternalError": f"Something went wrong; please report - error = {e}"}), 500
 
@@ -132,13 +134,14 @@ def getAll(username: str):
 
 @app.route("/v2/retrieve/<username>/<data_type>/<stockname>/")
 def retrieveV2(username, data_type, stockname):
-    retrievalInterface = RetrievalInterface()
-    s3BucketName = getTableNameFromKey(data_type)
-
-    # need to think how this might change depending on the bucket that i am reaching into (collab with Rakshil here)
-    filenameS3 = f"{username}#{stockname}_stock_data.csv"
-    filenameDynamo = f"{data_type}_{stockname}"
     try:
+        retrievalInterface = RetrievalInterface()
+        s3BucketName = getTableNameFromKey(data_type)
+
+        # need to think how this might change depending on the bucket that i am reaching into (collab with Rakshil here)
+        filenameS3 = f"{username}#{stockname}_stock_data.csv"
+        filenameDynamo = f"{data_type}_{stockname}"
+        
         found, content, index = retrievalInterface.getFileFromDynamo(filenameDynamo, username, DYNAMO_DB_NAME)
 
         if found:
@@ -149,9 +152,7 @@ def retrieveV2(username, data_type, stockname):
                 200,
             )
         else:
-            print(f"Going to try pull from s3 bucekt {s3BucketName}")
             content = retrievalInterface.pull(s3BucketName, f"{filenameS3}")
-            print(f"Got the content - content = {content}")
             retrievalInterface.pushToDynamoV2(data_type, stockname, content, username, DYNAMO_DB_NAME)
 
             found, content, index = retrievalInterface.getFileFromDynamo(stockname, username, DYNAMO_DB_NAME)
@@ -177,7 +178,10 @@ def retrieveV2(username, data_type, stockname):
         else:
             return json.dumps({"InternalError": f"Something unbelievable went wrong; please report - error = {e}"}), 500
     except UserNotFound:
-        return json.dumps({"UserNotFound": "Username not found; ensure you have reigstered"}), 401
+        return json.dumps({"UserNotFound": "Username not found; ensure you have registered"}), 401
+    except InvalidDataKey as e:
+        print(f"Oogly boogly i am a chicken")
+        return json.dumps({"InvalidDataKey": f"{e}"}), 400
     except Exception as e:
         return json.dumps({"InternalError": f"Something went wrong; please report - error = {e}"}), 500
 
