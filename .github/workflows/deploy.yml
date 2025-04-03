@@ -48,3 +48,4 @@ jobs:
           cluster: seng3011-omega-retrieval-cluster
           container-name: retrieval-service-container
           image: ${{ steps.build-image.outputs.image }}
+      
